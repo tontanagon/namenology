@@ -1,0 +1,72 @@
+// =============================================================================
+// CURRENT USER PROFILE & CREDIT BALANCES — GET /api/auth/me
+// Returns sanitized user profile and real-time calculated credit balances
+// per REQ-B03, REQ-B12, and REQ-B37.
+// =============================================================================
+
+import { NextResponse } from "next/server";
+import { getCurrentSession } from "@/lib/auth/session";
+import { prisma } from "@/lib/prisma";
+import { CreditType } from "@prisma/client";
+
+export const dynamic = "force-dynamic";
+
+export async function GET() {
+  try {
+    const { user } = await getCurrentSession();
+
+    if (!user) {
+      return NextResponse.json(
+        { authenticated: false, user: null },
+        { status: 200 }
+      );
+    }
+
+    // Calculate real-time credit balances from credit_ledger (ADR-003, REQ-B12)
+    const ledgerAggregates = await prisma.creditLedger.groupBy({
+      by: ["creditType"],
+      where: { userId: user.id },
+      _sum: { amount: true },
+    });
+
+    const balances: Record<CreditType, number> = {
+      [CreditType.FIRST_NAME]: 0,
+      [CreditType.SURNAME]: 0,
+      [CreditType.COMBINED]: 0,
+    };
+
+    for (const entry of ledgerAggregates) {
+      balances[entry.creditType] = entry._sum.amount ?? 0;
+    }
+
+    const fnBal = Math.max(0, balances[CreditType.FIRST_NAME]);
+    const snBal = Math.max(0, balances[CreditType.SURNAME]);
+    const cbBal = Math.max(0, balances[CreditType.COMBINED]);
+    // Full name analysis uses 1 combined credit OR 1 pair of (first name + surname)
+    const totalCredits = cbBal + Math.min(fnBal, snBal);
+
+    return NextResponse.json({
+      authenticated: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        stripeCustomerId: user.stripeCustomerId,
+        createdAt: user.createdAt,
+      },
+      credits: {
+        total: totalCredits,
+        firstName: fnBal,
+        surname: snBal,
+        combined: cbBal,
+      },
+    });
+  } catch (error) {
+    console.error("Fetch current user error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

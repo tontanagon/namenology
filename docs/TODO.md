@@ -1,0 +1,146 @@
+# NAMENOLOGY PROJECT TODO TRACKER
+
+Last Updated: 2026-09-22
+
+---
+
+## IN PROGRESS
+- None (All 12 Phases fully completed and verified)
+
+---
+
+## DONE
+- [x] **Phase 12: Production Readiness, Docker Verification & AI Handoff**
+  - [x] Hardened multi-stage Alpine Dockerfile with Alpine Prisma client generation & standalone Next.js tracing
+  - [x] Configured postgres:16-alpine with healthchecks in docker-compose.yml
+  - [x] Validated non-root execution in app container (nextjs:nodejs UID 1001)
+  - [x] Executed `npm audit` and completed full security audit checklist in `docs/SECURITY.md` (100% verified)
+  - [x] Synchronized `docs/AI_CONTEXT.md` with complete architectural and feature state across all 12 Phases
+  - [x] Verified zero hardcoded business logic, character scores, or product prices across all UI components (100% database-driven)
+- [x] **Phase 11: Testing & Quality Assurance**
+  - [x] Installed and configured Vitest (`vitest.config.ts`) with Next.js path alias support
+  - [x] Created Unit Test Suites:
+    - [x] `__tests__/unit/scoring.test.ts`: Text normalizer, Thai NFC Unicode handling, 1-100 normalization and precision
+    - [x] `__tests__/unit/weight.test.ts`: Dynamic weights, missing field redistribution (`REDISTRIBUTE_WEIGHT`), 100% sum validation
+    - [x] `__tests__/unit/entitlement.test.ts`: Independent quota buckets, permissions, balance summation from ledger
+    - [x] `__tests__/unit/security.test.ts`: Argon2id cryptography, rate limiting math, anti-XSS sanitization, recursive data redactor
+  - [x] Created Integration Test Suites:
+    - [x] `__tests__/integration/admin-weights.test.ts`: Server-side rejection of component weights not equal to 100.00% (REQ-B23, B35)
+    - [x] `__tests__/integration/stripe-webhook.test.ts`: Idempotent webhook delivery, duplicate event rejection, credit grant/revoke
+  - [x] Built End-to-End User Journey Simulation (`scripts/test-e2e-flow.ts`):
+    - [x] Signup -> 2 First Name, 2 Surname, 0 Combined free credit grant (REQ-B02, B03)
+    - [x] Free tier combined analysis blockage (REQ-B40)
+    - [x] Consuming free quota (Analysis #1 & #2)
+    - [x] Blocking exhausted quota (Analysis #3) with Paywall requirement
+    - [x] Concurrency race condition prevention (rejecting double spend)
+    - [x] Stripe package purchase fulfillment
+    - [x] Post-purchase combined analysis execution and credit deduction
+    - [x] User analysis history retrieval and CSV export formatting (REQ-B47)
+  - [x] Verified Vitest test suites (24/24 tests passed) and E2E script (23/23 tests passed) with 0 failures
+- [x] **Phase 10: Security Hardening & Rate Limiting (OWASP Compliance)**
+  - [x] Configured OWASP-compliant Content-Security-Policy (CSP), Strict-Transport-Security (HSTS), X-Content-Type-Options, X-Frame-Options, Referrer-Policy, and Permissions-Policy in `next.config.mjs` and `src/middleware.ts`
+  - [x] Built multi-tier rate limiting engine (`src/lib/security/rate-limiter.ts`) with sliding window in-memory caching and resilient asynchronous database synchronization
+  - [x] Enforced rate limits on `/api/auth/signin`, `/api/auth/signup`, `/api/auth/forgot-password`, `/api/auth/reset-password`, `/api/analysis`, and `/api/stripe/checkout` with RFC 6585 429 response & `Retry-After` headers
+  - [x] Built anti-XSS and input sanitization engine (`src/lib/security/sanitize.ts`) with script stripping, control character removal, and Thai NFC Unicode normalization
+  - [x] Built enterprise structured logger (`src/lib/logger.ts`) with recursive sensitive data redaction for passwords, secrets, tokens, credit cards, and PII
+  - [x] Built Same-Origin and CSRF defense guard (`src/lib/security/csrf.ts`) protecting mutating state-changing API endpoints
+  - [x] Verified test suite (`scripts/test-security.ts`) passing 18/18 security tests; validated production compilation with `npm run typecheck` and `npm run build` (0 errors)
+- [x] **Phase 9: Admin Dashboard & Configuration Center**
+  - [x] Enforced strict server-side RBAC guard for all `/admin/*` pages and `/api/admin/*` routes (`requireAdmin()`)
+  - [x] Built real-time Admin Overview Dashboard (`/admin/dashboard`) with database-driven KPI telemetry (Total Users, Stored Analyses, Settled Stripe Revenue, Active Service Requests)
+  - [x] Built Character Score Management (`/admin/characters`) with alphabet filtering (Thai vs. Latin), search, inline score editing, and audit logging
+  - [x] Built Name Component & Weight Management (`/admin/components`) with strict server-side validation enforcing that enabled weights sum to exactly 100.00% (REQ-B23, REQ-B35)
+  - [x] Built System Settings & Formula Versioning (`/admin/settings`) allowing seamless formula deployments (v1.0 -> v1.1) while preserving historical reproducibility (REQ-B24)
+  - [x] Built Product Catalog Management (`/admin/products`) supporting dynamic price adjustments for packages ($19, $24, $45, $65) and services ($150, $190, $360) (REQ-B01, REQ-B49)
+  - [x] Built Service Order Operations (`/admin/service-orders`) for reviewing client intake, managing specialist workflow, and delivering bespoke reports (REQ-B45, REQ-B55)
+  - [x] Built User & Quota Management (`/admin/users`) with dynamic credit balance calculation from `credit_ledger` and manual adjustment modal (REQ-B50)
+  - [x] Built Audit Trail Viewer (`/admin/audit-logs`) with event metadata inspector
+  - [x] Verified `npm run typecheck` and `npm run build` compiled all 25 routes and 28 API endpoints cleanly (0 errors)
+- [x] **Phase 8: User Experience, Dashboard & Analysis UI**
+  - [x] Built stunning Modern Mystic SaaS Landing Page (`/`) with celestial sacred geometry, cosmic glow, and interactive score gauge preview
+  - [x] Built dedicated circular SVG `ScoreGauge` with animated progress stroke, cosmic bioluminescent glow, and astrological category badges
+  - [x] Upgraded Analysis Engine (`/analyze`) with Single Analysis and Harmonic Pairing / Bulk Ranking mode (REQ-B41, B42)
+  - [x] Built dedicated shareable & printable analysis report page (`/analyze/result/[id]`) with immutable calculation snapshots
+  - [x] Built comprehensive Analysis History page (`/analysis-history`) with search, filter by type, paginated table, and CSV export (REQ-B47)
+  - [x] Built Professional Services intake & tracking workflows (`/services/[code]` and `/services/orders/[id]`) for Baby Naming ($150), Name Change ($190), and Surname Creation ($360) (REQ-B25, B43, B44)
+  - [x] Upgraded User Dashboard (`/dashboard`) with active service order tracking and deep links to full analysis reports
+  - [x] Verified `npm run typecheck` and `npm run build` passed cleanly across all 18 routes (0 errors)
+- [x] **Phase 7: Stripe Payment, Subscriptions & Products**
+  - [x] Implemented production-ready Stripe service layer (`src/services/stripe.service.ts`) with development mock fallback when live Stripe keys are absent
+  - [x] Built server-side checkout session creation (`POST /api/stripe/checkout`) strictly validating product prices from database (REQ-B49)
+  - [x] Enforced strict browser redirect decoupling: credits and service orders are NEVER granted via redirect URLs, only through verified webhooks (REQ-B13)
+  - [x] Built secure webhook handler (`POST /api/stripe/webhook`) with raw body signature verification and strict idempotency enforcement via `stripe_webhook_events` (REQ-B51)
+  - [x] Handled `checkout.session.completed` for finite analysis packages ($19, $24, $45, $65) granting exact credits into `credit_ledger` (REQ-B11, REQ-B31)
+  - [x] Handled `checkout.session.completed` for professional services ($150, $190, $360) generating `service_orders` records (REQ-B25, REQ-B44)
+  - [x] Handled `charge.refunded` automatically revoking unused credits (REQ-B34)
+  - [x] Built customer portal route (`POST /api/stripe/portal`) and product catalog endpoint (`GET /api/products`)
+  - [x] Created comprehensive payment flow test script (`scripts/test-payment-flow.ts`)
+  - [x] Verified `npm run typecheck` and `npm run build` passed cleanly with 0 errors
+- [x] **Phase 6: Entitlement, Credit Ledger & Transaction Safety**
+  - [x] Implemented dedicated `EntitlementService` (`src/services/entitlement.service.ts`) with independent quota bucket calculations
+  - [x] Enforced server-side `canAnalyzeUser(userId, creditType)` verification
+  - [x] Built atomic credit reservation and consumption with database transactions and row-level locking to prevent race conditions and double spending (REQ-B04, REQ-B14)
+  - [x] Implemented `POST /api/analysis` credit deduction rollback guarantee (validation and server errors never consume quota)
+  - [x] Built `GET /api/me/credits` route providing real-time balances, total earned/consumed metrics, and paginated transaction audit history
+  - [x] Upgraded User Dashboard (`/dashboard`) with live credit bucket balances and real-time analysis history
+  - [x] Verified `npm run typecheck` and `npm run build` passed with 0 errors
+- [x] **Phase 5: Core Namenology Analysis Engine**
+  - [x] Built Service-Repository Layer (`CharacterScoreRepository`, `NameComponentRepository`, `AnalysisConfigRepository`, `ScoreInterpretationRepository`, `CreditLedgerRepository`, `AnalysisRepository`)
+  - [x] Built `TextNormalizer` with Unicode NFC decomposition, whitespace trimming, and Thai/English language classification
+  - [x] Built `CharacterMapper` with case-insensitive Latin & Unicode Thai scoring and unsupported character detection
+  - [x] Built `ScoringService` with dynamic component weights, missing field redistribution (`REDISTRIBUTE_WEIGHT`), 1-100 normalization, and score interpretation resolution
+  - [x] Built `AnalysisService` with pre-flight entitlement verification, transaction-safe atomic credit deduction, JSON config snapshotting, and machine-readable output (REQ-B46)
+  - [x] Built `POST /api/analysis` (execution), `GET /api/analysis` (paginated history), and `GET /api/analysis/[id]` (detailed report)
+  - [x] Enhanced interactive UI on `/analyze` with live credit tracking, paywall alerts, score circle, master recommendations, component weights, and character numeric badges
+  - [x] Verified `npm run typecheck` and `npm run build` passed with 0 errors
+- [x] **Phase 4: Authentication & Authorization System**
+  - [x] Implemented Argon2id password hashing and verification (`src/lib/auth/password.ts`)
+  - [x] Built server-side session management with 64-character cryptographic tokens and HttpOnly/SameSite/Secure cookies (`src/lib/auth/session.ts`)
+  - [x] Created RBAC server guards: `getCurrentUser()`, `requireAuth()`, `requireAdmin()` (`src/lib/auth/rbac.ts`)
+  - [x] Built rate-limiting helper with in-memory store and DB fallback (`src/lib/auth/rate-limit.ts`)
+  - [x] Built `POST /api/auth/signup` with transaction-safe free quota credit allotment (2 First Name, 2 Surname, 0 Combined per REQ-B02/B03/B12)
+  - [x] Built `POST /api/auth/signin` with Argon2id verification and rate-limit protection
+  - [x] Built `POST /api/auth/signout` with DB session invalidation and cookie clearing
+  - [x] Built `GET /api/auth/me` with dynamic credit balance aggregation from `credit_ledger`
+  - [x] Built `POST /api/auth/forgot-password` and `POST /api/auth/reset-password`
+  - [x] Configured Next.js Route Protection Middleware (`src/middleware.ts`) and Admin Layout guard (`src/app/admin/layout.tsx`)
+  - [x] Updated Sign In, Sign Up, and Forgot Password UI pages with live forms, error handling, and Navbar session awareness
+- [x] **Phase 3: Database Design, Prisma Schema & Seed Data**
+  - [x] Designed & implemented full Prisma schema with 18 models and comprehensive enums in `prisma/schema.prisma`
+  - [x] Enforced separate multi-type credit buckets (`FIRST_NAME`, `SURNAME`, `COMBINED`) via transactional `CreditLedger`
+  - [x] Created Prisma client singleton in `src/lib/prisma.ts` with connection management
+  - [x] Generated Prisma Client v6.19 with full TypeScript types
+  - [x] Implemented idempotent `prisma/seed.ts` seeding Name Components, Analysis Config v1.0, Thai/English character tables, 5 score interpretations, and product catalog ($0 Free, $19 1-Set, $24 2-Sets, $45 3-Sets, $65 5-Sets, $150 Baby Naming, $190 Name Change, $360 Surname Creation)
+  - [x] Created Argon2id password hasher (`src/lib/auth/password.ts`) and Admin creation script (`scripts/create-admin.ts`)
+  - [x] Added database npm scripts to `package.json` (`db:generate`, `db:push`, `db:migrate`, `db:seed`, `db:studio`, `db:create-admin`)
+  - [x] Verified `npx prisma validate`, `npx prisma generate`, and `npm run typecheck` passed with 0 errors
+- [x] **Phase 2: Documentation & AI Handoff Foundation**
+  - [x] Created `docs/AI_CONTEXT.md` — complete project context for AI agents
+  - [x] Created `docs/PRD.md` — product requirements, personas, user flows
+  - [x] Created `docs/ARCHITECTURE.md` — system layers, data flows, component architecture
+  - [x] Created `docs/DATABASE.md` — full data dictionary (17 tables, schemas, indexes, constraints)
+  - [x] Created `docs/API.md` — complete API specification for all endpoints
+  - [x] Created `docs/AUTH.md` — authentication flow, Argon2id, sessions, RBAC
+  - [x] Created `docs/ANALYSIS_ENGINE.md` — scoring algorithm, weights, normalization, versioning
+  - [x] Created `docs/STRIPE.md` — checkout, webhooks, security, product mapping
+  - [x] Created `docs/SECURITY.md` — threat model, OWASP controls, audit checklist
+  - [x] Created `docs/TESTING.md` — test strategy, cases, commands
+  - [x] Created `docs/DEPLOYMENT.md` — Docker deployment, pre-deploy checklist
+  - [x] Created `docs/ADMIN_GUIDE.md` — admin features and configuration guide
+  - [x] Created `docs/DECISIONS.md` — 8 Architecture Decision Records (ADRs)
+  - [x] Created `docs/CHANGELOG.md` — project change history
+- [x] **Phase 1: Project Scaffolding & Design System Setup**
+  - [x] Initialized Next.js 14 App Router with TypeScript (Strict Mode)
+  - [x] Configured Tailwind CSS theme tokens (Cyan/Teal, Mystic Indigo, Subtle Gold, Modern 2026 aesthetics, no emoji)
+  - [x] Created clean architecture folder structure (`app`, `components`, `lib`, `services`, `repositories`, `types`)
+  - [x] Created reusable UI primitives (`Button`, `Input`, `Card`, `Badge`) and layouts (`Navbar`, `Footer`)
+  - [x] Created public pages (`/`, `/pricing`), auth pages (`/signin`, `/signup`), user dashboard (`/dashboard`, `/analyze`), admin dashboard (`/admin/dashboard`), and API health route (`/api/health`)
+  - [x] Created Docker environment (`Dockerfile` multi-stage with non-root user, `docker-compose.yml`, `.dockerignore`, `.env.example`)
+  - [x] Verified `npm run typecheck` and `npm run build` compiled successfully
+- [x] Analyzed `PROJECT_SPEC.md`, `Namenology_Business_Specification.md`, and `THEME.md`
+- [x] Generated Master Development Checklist in `checklists/DEVELOPMENT_CHECKLIST.md`
+
+---
+
+## BLOCKED
+- *None currently*

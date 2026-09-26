@@ -25,8 +25,8 @@ export class AnalysisConfigRepository {
     return {
       id: "default",
       version: "1.0",
-      freeFirstNameLimit: 2,
-      freeSurnameLimit: 2,
+      freeFirstNameLimit: 0,
+      freeSurnameLimit: 0,
       freeCombinedLimit: 0,
       scorePrecision: 2,
       missingFieldPolicy: MissingFieldPolicy.REDISTRIBUTE_WEIGHT,

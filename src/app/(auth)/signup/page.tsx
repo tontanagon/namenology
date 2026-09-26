@@ -87,7 +87,7 @@ export default function SignupPage() {
           </Link>
           <h1 className="text-2xl font-bold tracking-tight text-foreground font-outfit">Create Free Account</h1>
           <p className="text-xs text-muted-foreground mt-1">
-            Claim 2 complimentary Given Name and 2 Surname analysis credits immediately upon registration.
+            Sign up to track your analysis history, save generated reports, and manage credit packages.
           </p>
         </div>
 

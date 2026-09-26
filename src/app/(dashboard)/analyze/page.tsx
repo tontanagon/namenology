@@ -2,16 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
-import { ScoreGauge } from "@/components/analysis/ScoreGauge";
 import {
   NumerologyGroupArticle,
-  getNumerologyGroup,
-  reduceToRootNumber,
 } from "@/lib/data/numerology-groups";
 import {
   Sparkles,
@@ -20,18 +18,14 @@ import {
   CheckCircle2,
   Lock,
   Unlock,
-  ArrowRight,
-  TrendingUp,
-  Layers,
-  FileText,
-  Plus,
-  Trash2,
-  Award,
-  ShieldAlert,
-  HeartPulse,
-  Share2,
   Printer,
   Check,
+  ShieldAlert,
+  HeartPulse,
+  Award,
+  Share2,
+  ArrowRight,
+  BookOpen,
 } from "lucide-react";
 
 interface CreditBalances {
@@ -55,6 +49,7 @@ interface ComponentPreview {
   rootNumber: number;
   characters: MappedChar[];
   weight: number;
+  article: NumerologyGroupArticle;
 }
 
 interface AnalysisPreviewData {
@@ -63,22 +58,16 @@ interface AnalysisPreviewData {
   fullName: {
     inputText: string;
     finalScore: number;
-    totalCompoundSum: number; // 1. เลขรวม
-    rootNumber: number;       // 1. เลขรวม (Root)
-    article: NumerologyGroupArticle; // 2. ชื่อของบทความ + 3. ความหมายหรือบทความ
+    fullNameScore?: number;
+    totalCompoundSum: number; // Total compound number
+    rootNumber: number;       // Root vibration
+    weight: number;           // 40% life influence
+    article: NumerologyGroupArticle; // Full name article
   };
 }
 
-interface PairingItem {
-  surname: string;
-  score: number;
-  totalSum: number;
-  rootNumber: number;
-  articleTitle: string;
-}
-
 export default function AnalyzePage() {
-  const [activeTab, setActiveTab] = useState<"unified" | "pairing">("unified");
+  const router = useRouter();
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
   const [credits, setCredits] = useState<CreditBalances>({
@@ -87,6 +76,7 @@ export default function AnalyzePage() {
     surname: 0,
     combined: 0,
   });
+  const [freeAnalysesCount, setFreeAnalysesCount] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -95,23 +85,41 @@ export default function AnalyzePage() {
   const [savedAnalysisId, setSavedAnalysisId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Pairing Mode State
-  const [pairingFirstName, setPairingFirstName] = useState("");
-  const [candidateSurnames, setCandidateSurnames] = useState<string[]>(["", ""]);
-  const [pairingResults, setPairingResults] = useState<PairingItem[]>([]);
-  const [pairingLoading, setPairingLoading] = useState(false);
+  // Initialize free analyses count from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("namenology_free_analyses_count");
+      if (stored !== null) {
+        setFreeAnalysesCount(parseInt(stored, 10) || 0);
+      }
+    }
+  }, []);
 
   const fetchCredits = async () => {
     try {
       const res = await fetch("/api/auth/me");
       const data = await res.json();
-      if (data.authenticated && data.credits) {
-        setCredits({
-          total: data.credits.total ?? (data.credits.combined + Math.min(data.credits.firstName, data.credits.surname)),
-          firstName: data.credits.firstName ?? 0,
-          surname: data.credits.surname ?? 0,
-          combined: data.credits.combined ?? 0,
-        });
+      if (data.authenticated) {
+        if (data.credits) {
+          setCredits({
+            total:
+              data.credits.total ??
+              data.credits.combined +
+                Math.min(data.credits.firstName, data.credits.surname),
+            firstName: data.credits.firstName ?? 0,
+            surname: data.credits.surname ?? 0,
+            combined: data.credits.combined ?? 0,
+          });
+        }
+        if (typeof data.analysesCount === "number") {
+          setFreeAnalysesCount((prev) => Math.max(prev, data.analysesCount));
+          if (typeof window !== "undefined") {
+            localStorage.setItem(
+              "namenology_free_analyses_count",
+              Math.max(data.analysesCount).toString()
+            );
+          }
+        }
       }
     } catch {
       // offline fallback
@@ -123,7 +131,9 @@ export default function AnalyzePage() {
   }, []);
 
   // ---------------------------------------------------------------------------
-  // 1. Execute Preview Calculation (Unified First Name + Surname)
+  // Execute Name Analysis
+  // - Runs 1 & 2: Free trial (Given Name 20% & Surname 40% unlocked, Full Name 40% locked)
+  // - Run 3+: Requires payment or credit to analyze & unlocks all 3 parts
   // ---------------------------------------------------------------------------
   const handleCalculatePreview = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,15 +143,25 @@ export default function AnalyzePage() {
     const sName = surname.trim();
 
     if (!fName || !sName) {
-      setError("Please provide both Given Name and Surname to compute complete synergy.");
+      setError("Please provide both Given Name and Surname to compute the complete analysis.");
+      return;
+    }
+
+    // Check if free trials are exhausted (>= 2)
+    const isFreeTrial = freeAnalysesCount < 2;
+
+    if (!isFreeTrial && credits.total <= 0) {
+      setError(
+        "You have used your 2 free trial analyses. Subsequent analyses require credits. Please purchase a package to continue."
+      );
       return;
     }
 
     setLoading(true);
-    setIsUnlocked(false);
     setSavedAnalysisId(null);
 
     try {
+      // 1. Fetch preview calculation
       const res = await fetch("/api/analysis/preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -160,6 +180,46 @@ export default function AnalyzePage() {
       }
 
       setPreview(data.data);
+
+      if (isFreeTrial) {
+        // Free trial: Given Name & Surname available, Full Name locked
+        setIsUnlocked(false);
+        const newCount = freeAnalysesCount + 1;
+        setFreeAnalysesCount(newCount);
+        if (typeof window !== "undefined") {
+          localStorage.setItem(
+            "namenology_free_analyses_count",
+            newCount.toString()
+          );
+        }
+      } else {
+        // Paid run (3+): Automatically consume credit and unlock full dossier
+        try {
+          const authRes = await fetch("/api/analysis", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              analysisType: "COMBINED",
+              firstName: fName,
+              surname: sName,
+            }),
+          });
+          const authData = await authRes.json();
+          if (authRes.ok && authData.analysis) {
+            setIsUnlocked(true);
+            setSavedAnalysisId(authData.analysis.id);
+            await fetchCredits();
+          } else {
+            setIsUnlocked(false);
+            if (authRes.status === 403) {
+              setError("Insufficient credits. Please acquire an analysis package to unlock.");
+            }
+          }
+        } catch {
+          setIsUnlocked(false);
+        }
+      }
+
       setLoading(false);
     } catch {
       setError("Network connection error. Please try again.");
@@ -168,7 +228,7 @@ export default function AnalyzePage() {
   };
 
   // ---------------------------------------------------------------------------
-  // 2. Unlock Full Dossier (Consume 1 Credit & Save to DB)
+  // Unlock Full Name Dossier (Consume 1 Credit from Free Trial Preview)
   // ---------------------------------------------------------------------------
   const handleUnlockDossier = async () => {
     if (!preview) return;
@@ -189,8 +249,14 @@ export default function AnalyzePage() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (res.status === 401) {
+          router.push("/signin?callbackUrl=/analyze");
+          return;
+        }
         if (res.status === 403) {
-          setError("You do not have enough analysis credits. Please acquire an analysis package to unlock.");
+          setError(
+            "Insufficient credits. Please acquire an analysis package to unlock the Full Name analysis."
+          );
         } else {
           setError(data.error || "Failed to unlock full reading.");
         }
@@ -206,57 +272,6 @@ export default function AnalyzePage() {
       setError("Failed to communicate with state ledger. Please try again.");
       setUnlocking(false);
     }
-  };
-
-  // ---------------------------------------------------------------------------
-  // 3. Pairing Mode Calculation
-  // ---------------------------------------------------------------------------
-  const handlePairingAnalyze = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    const validCandidates = candidateSurnames.filter((s) => s.trim().length > 0);
-    if (!pairingFirstName.trim()) {
-      setError("Please enter a primary Given Name.");
-      return;
-    }
-    if (validCandidates.length === 0) {
-      setError("Please provide at least one candidate surname.");
-      return;
-    }
-
-    setPairingLoading(true);
-    const results: PairingItem[] = [];
-
-    for (const cand of validCandidates) {
-      try {
-        const res = await fetch("/api/analysis/preview", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            firstName: pairingFirstName.trim(),
-            surname: cand.trim(),
-          }),
-        });
-
-        const data = await res.json();
-        if (res.ok && data.data) {
-          results.push({
-            surname: cand.trim(),
-            score: data.data.fullName.finalScore,
-            totalSum: data.data.fullName.totalCompoundSum,
-            rootNumber: data.data.fullName.rootNumber,
-            articleTitle: data.data.fullName.article.title,
-          });
-        }
-      } catch {
-        // continue
-      }
-    }
-
-    results.sort((a, b) => b.score - a.score);
-    setPairingResults(results);
-    setPairingLoading(false);
   };
 
   const handleCopyShare = () => {
@@ -277,23 +292,23 @@ export default function AnalyzePage() {
 
       <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8 relative z-10">
         {/* ========================================================================= */}
-        {/* HEADER & UNIFIED CREDIT BADGE (NO SEPARATION BETWEEN FIRST & SURNAME)     */}
+        {/* HEADER & CREDIT STATUS                                                    */}
         {/* ========================================================================= */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Badge variant="brand">Name Science Engine v2.0</Badge>
-              <Badge variant="indigo">Unified Name & Surname Synergy</Badge>
+              <Badge variant="indigo">Tripartite Destiny Analysis</Badge>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-outfit">
               Scientific Name Resonance & Numerology
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              Analyze Given Name and Surname simultaneously to decode phonetic frequencies, total compound vibration, and complete destiny archetypes.
+              Analyze in 3 distinct dimensions: Given Name (20%) + Surname (40%) + Full Name (40%) decoded through the 1–100 numerology science.
             </p>
           </div>
 
-          {/* Unified Credit Counter: No separate First Name vs Surname credits */}
+          {/* Credit Counter */}
           <div className="flex items-center gap-3 p-3 rounded-2xl border border-slate-200/80 bg-white/90 backdrop-blur-md shadow-card">
             <div className="flex flex-col">
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -303,609 +318,694 @@ export default function AnalyzePage() {
                 <span className="text-xl font-extrabold text-brand-600 font-outfit">
                   {credits.total}
                 </span>
-                <span className="text-xs text-muted-foreground">
-                  {credits.total === 1 ? "Complete Analysis" : "Complete Analyses"}
-                </span>
+                <span className="text-xs text-muted-foreground">Available</span>
               </div>
             </div>
             <Link href="/pricing">
-              <Button variant="outline" size="sm" className="h-8 text-xs font-semibold shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs font-semibold shrink-0"
+              >
                 + Top Up
               </Button>
             </Link>
           </div>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex border-b border-border">
-          <button
-            type="button"
-            className={`pb-3 px-5 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
-              activeTab === "unified"
-                ? "border-brand-500 text-brand-600 font-bold"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-            onClick={() => setActiveTab("unified")}
-          >
-            <Compass className="w-4 h-4" />
-            <span>Complete Name Analysis</span>
-          </button>
-          <button
-            type="button"
-            className={`pb-3 px-5 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
-              activeTab === "pairing"
-                ? "border-brand-500 text-brand-600 font-bold"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-            onClick={() => setActiveTab("pairing")}
-          >
-            <Sparkles className="w-3.5 h-3.5 text-brand-500" />
-            <span>Harmonic Surname Comparison</span>
-          </button>
+        {/* Free Trial Quota Notice Banner */}
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-brand-50/80 to-indigo-50/80 border border-brand-200/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold font-outfit shadow-sm">
+              {Math.min(2, freeAnalysesCount)}/2
+            </div>
+            <div>
+              {freeAnalysesCount < 2 ? (
+                <p className="font-semibold text-brand-950">
+                  Free Trial:{" "}
+                  <span className="font-bold text-brand-600">
+                    {2 - freeAnalysesCount} remaining
+                  </span>{" "}
+                  (Given Name 20% & Surname 40% are unlocked for free)
+                </p>
+              ) : (
+                <p className="font-semibold text-amber-900">
+                  Free trial quota completed • Subsequent analyses require 1 credit (unlocks all 3 dimensions 100%)
+                </p>
+              )}
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                The first 2 analyses are free, but the Full Name analysis (40%) is locked until unlocked with credits.
+              </p>
+            </div>
+          </div>
+          {freeAnalysesCount >= 2 && credits.total === 0 && (
+            <Link href="/pricing">
+              <Button
+                variant="primary"
+                size="sm"
+                className="h-7 text-[11px] font-bold shrink-0"
+              >
+                Purchase Credits &rarr;
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* ========================================================================= */}
-        {/* TAB 1: UNIFIED FIRST NAME + SURNAME ANALYSIS FORM                         */}
+        {/* NAME INPUT FORM                                                           */}
         {/* ========================================================================= */}
-        {activeTab === "unified" && (
-          <div className="space-y-8">
-            <Card variant="science" glow="blue" className="p-6 sm:p-8">
-              <form onSubmit={handleCalculatePreview} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  {/* First Name Input */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                      <span>Given Name (First Name) *</span>
-                      <span className="text-[11px] font-normal text-muted-foreground">Weight: 60%</span>
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="e.g. Alexander"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      className="h-12 text-sm font-medium"
-                      required
-                    />
-                    <p className="text-[11px] text-muted-foreground">
-                      Primary given name vibrating core creative and sovereign potential.
-                    </p>
-                  </div>
+        <Card variant="science" glow="blue" className="p-6 sm:p-8">
+          <form onSubmit={handleCalculatePreview} className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {/* First Name Input */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                  <span>Given Name (First Name) *</span>
+                  <Badge variant="brand" className="text-[10px] py-0 px-2">
+                    20% Life Impact
+                  </Badge>
+                </label>
+                <Input
+                  type="text"
+                  placeholder="e.g. Alexander"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="h-12 text-sm font-medium"
+                  required
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Individual personality, creative initiative, and sovereign leadership potential.
+                </p>
+              </div>
 
-                  {/* Surname Input */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                      <span>Surname (Family Name) *</span>
-                      <span className="text-[11px] font-normal text-muted-foreground">Weight: 40%</span>
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="e.g. Vance"
-                      value={surname}
-                      onChange={(e) => setSurname(e.target.value)}
-                      className="h-12 text-sm font-medium"
-                      required
-                    />
-                    <p className="text-[11px] text-muted-foreground">
-                      Ancestral lineage resonance providing structural foundation and stability.
-                    </p>
-                  </div>
-                </div>
+              {/* Surname Input */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                  <span>Surname (Family Name) *</span>
+                  <Badge variant="indigo" className="text-[10px] py-0 px-2">
+                    40% Life Impact
+                  </Badge>
+                </label>
+                <Input
+                  type="text"
+                  placeholder="e.g. Vance"
+                  value={surname}
+                  onChange={(e) => setSurname(e.target.value)}
+                  className="h-12 text-sm font-medium"
+                  required
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Ancestral lineage resonance, structural stability, and generational support.
+                </p>
+              </div>
+            </div>
 
-                {error && (
-                  <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-600 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>{error}</span>
-                  </div>
+            {error && (
+              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-600 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2 border-t border-slate-100">
+              <div className="text-xs text-muted-foreground flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-brand-500" />
+                <span>
+                  Decodes phonetic letter weights (Chaldean & Thai) and queries the 1–100 numerology knowledge base.
+                </span>
+              </div>
+
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                disabled={loading || !firstName.trim() || !surname.trim()}
+                className="w-full sm:w-auto px-8 font-bold"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 animate-spin" />
+                    <span>Computing Vibration...</span>
+                  </span>
+                ) : freeAnalysesCount < 2 ? (
+                  <span className="flex items-center gap-2">
+                    <Compass className="w-4 h-4" />
+                    <span>
+                      Calculate Name Resonance (Free Trial {freeAnalysesCount + 1}/2)
+                    </span>
+                  </span>
+                ) : credits.total > 0 ? (
+                  <span className="flex items-center gap-2">
+                    <Compass className="w-4 h-4" />
+                    <span>Analyze Full Dossier (1 Credit)</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    <span>Top Up Credits to Continue</span>
+                  </span>
                 )}
+              </Button>
+            </div>
+          </form>
+        </Card>
 
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2 border-t border-slate-100">
-                  <div className="text-xs text-muted-foreground flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-brand-500" />
-                    <span>Instant calculation of acoustic weights, root life numbers, and total compound frequency.</span>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="lg"
-                    disabled={loading || !firstName.trim() || !surname.trim()}
-                    className="w-full sm:w-auto px-8 font-bold"
-                  >
-                    {loading ? (
-                      <span className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 animate-spin" />
-                        <span>Computing Vibration...</span>
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        <Compass className="w-4 h-4" />
-                        <span>Calculate Complete Name Resonance</span>
-                      </span>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </Card>
+        {/* ========================================================================= */}
+        {/* ANALYSIS RESULTS: 3 MAPPING SECTIONS                                      */}
+        {/* 1. Given Name (20%)                                                       */}
+        {/* 2. Surname (40%)                                                          */}
+        {/* 3. Full Name (40%) (Gated on 2 free trials, unlocked via credit)          */}
+        {/* ========================================================================= */}
+        {preview && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Results Title Banner */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 pb-3">
+              <div>
+                <h2 className="text-xl font-extrabold text-foreground font-outfit">
+                  Analysis Results for &ldquo;{preview.fullName.inputText}&rdquo;
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Tripartite analysis: Given Name (20%) • Surname (40%) • Full Name (40%)
+                </p>
+              </div>
+              {isUnlocked ? (
+                <Badge variant="success" className="gap-1.5 py-1 px-3">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Full Destiny Dossier Unlocked</span>
+                </Badge>
+              ) : (
+                <Badge variant="gold" className="gap-1.5 py-1 px-3">
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>Free Trial Mode (Full Name Locked)</span>
+                </Badge>
+              )}
+            </div>
 
             {/* ===================================================================== */}
-            {/* ANALYSIS RESULT DISPLAY (INCLUDES 1.เลขรวม 2.ชื่อของบทความ 3.ความหมาย) */}
+            {/* 1. GIVEN NAME COMPONENT — 20% LIFE IMPACT                             */}
             {/* ===================================================================== */}
-            {preview && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* Section Title */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 pb-3">
-                  <div>
-                    <h2 className="text-xl font-extrabold text-foreground font-outfit">
-                      Analysis Results for &ldquo;{preview.fullName.inputText}&rdquo;
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      Simultaneous calculation of First Name (60%), Surname (40%), and Full Name Compound Resonance (100%).
-                    </p>
+            <Card variant="science" glow="blue" className="p-6 sm:p-8 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-5">
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Badge variant="brand">1. Given Name</Badge>
+                    <Badge variant="indigo">20% Life Impact</Badge>
                   </div>
-                  {isUnlocked && (
-                    <Badge variant="success" className="gap-1.5 py-1 px-3">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Full Destiny Dossier Unlocked</span>
-                    </Badge>
-                  )}
+                  <h3 className="text-2xl font-black text-foreground font-outfit">
+                    {preview.firstName.inputText}
+                  </h3>
                 </div>
 
-                {/* Component Breakdown Cards (First Name & Surname) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {/* First Name Breakdown */}
-                  <Card variant="science" className="p-5 space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                          Given Name Component (60%)
-                        </span>
-                        <h3 className="text-lg font-bold text-foreground mt-0.5">
-                          {preview.firstName.inputText}
-                        </h3>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-muted-foreground">Root Vibration</div>
-                        <div className="text-xl font-extrabold text-brand-600 font-outfit">
-                          {preview.firstName.rootNumber}
-                          <span className="text-xs font-normal text-muted-foreground ml-1">
-                            (Sum: {preview.firstName.charSum})
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-2">
-                        Phonetic Acoustic Weights:
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {preview.firstName.characters.map((ch, idx) => (
-                          <div
-                            key={idx}
-                            className="flex flex-col items-center px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 min-w-[36px]"
-                          >
-                            <span className="text-xs font-bold text-foreground">{ch.character}</span>
-                            <span className="text-[10px] font-bold text-brand-600">{ch.score}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </Card>
-
-                  {/* Surname Breakdown */}
-                  <Card variant="science" className="p-5 space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                          Surname Component (40%)
-                        </span>
-                        <h3 className="text-lg font-bold text-foreground mt-0.5">
-                          {preview.surname.inputText}
-                        </h3>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-muted-foreground">Root Vibration</div>
-                        <div className="text-xl font-extrabold text-indigo-600 font-outfit">
-                          {preview.surname.rootNumber}
-                          <span className="text-xs font-normal text-muted-foreground ml-1">
-                            (Sum: {preview.surname.charSum})
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-2">
-                        Phonetic Acoustic Weights:
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {preview.surname.characters.map((ch, idx) => (
-                          <div
-                            key={idx}
-                            className="flex flex-col items-center px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 min-w-[36px]"
-                          >
-                            <span className="text-xs font-bold text-foreground">{ch.character}</span>
-                            <span className="text-[10px] font-bold text-indigo-600">{ch.score}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-
-                {/* ================================================================= */}
-                {/* THE COMPLETE FULL NAME DESTINY DOSSIER (GATED/UNLOCKED)           */}
-                {/* 1. เลขรวม (TOTAL NUMBER)                                         */}
-                {/* 2. ชื่อของบทความ (ARTICLE TITLE)                                  */}
-                {/* 3. ความหมายหรือบทความ (MEANINGS & DEEP ARTICLE)                   */}
-                {/* ================================================================= */}
-                <div className="relative rounded-3xl border border-slate-200 bg-white shadow-xl overflow-hidden">
-                  {/* Decorative Header Glow */}
-                  <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-brand-500 via-indigo-500 to-violet-500" />
-
-                  <div className="p-6 sm:p-10 space-y-8">
-                    {/* Top Identity Meta */}
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-6 border-b border-slate-100">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <Badge variant="brand">Full Name Synergy</Badge>
-                          <Badge variant="outline">
-                            Harmonic Index: {preview.fullName.finalScore} / 100
-                          </Badge>
-                        </div>
-                        <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground font-outfit">
-                          {preview.fullName.inputText}
-                        </h2>
-                      </div>
-
-                      {/* 1. เลขรวม (TOTAL NUMBER & ROOT VIBRATION) */}
-                      <div className="flex items-center gap-4 bg-slate-50 border border-slate-200/80 p-4 rounded-2xl">
-                        <div className="text-center">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
-                            Compound Sum
-                          </span>
-                          <span className="text-2xl font-black text-foreground font-outfit">
-                            {preview.fullName.totalCompoundSum}
-                          </span>
-                        </div>
-                        <div className="h-8 w-px bg-slate-200" />
-                        <div className="text-center">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600 block">
-                            1. Total Root Number
-                          </span>
-                          <span className="text-4xl font-black text-brand-600 font-outfit leading-none">
-                            {preview.fullName.rootNumber}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 2. ชื่อของบทความ (ARTICLE TITLE) */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold uppercase tracking-wider text-brand-600">
-                          2. Article & Archetype
-                        </span>
-                        <span className="text-xs text-muted-foreground">•</span>
-                        <span className="text-xs font-semibold text-muted-foreground">
-                          GROUP {preview.fullName.article.groupNumber} ({preview.fullName.article.numbersFormatted})
-                        </span>
-                      </div>
-                      <h3 className="text-2xl sm:text-4xl font-black text-foreground font-outfit tracking-tight">
-                        {preview.fullName.article.title}
-                      </h3>
-                    </div>
-
-                    {/* 3. ความหมายหรือบทความ: MEANINGS & SYMBOLS (VISIBLE TEASER) */}
-                    <div className="p-4 sm:p-5 rounded-2xl bg-brand-50/60 border border-brand-200/60 space-y-1.5">
-                      <span className="text-xs font-bold uppercase tracking-wider text-brand-700 block">
-                        Meanings & Symbols:
-                      </span>
-                      <p className="text-sm font-semibold text-brand-950 leading-relaxed">
-                        {preview.fullName.article.meaningsAndSymbols}
-                      </p>
-                    </div>
-
-                    {/* ============================================================= */}
-                    {/* GATED DEEP DOSSIER (BLURRED OVERLAY IF UNPAID / LOCKED)       */}
-                    {/* ============================================================= */}
-                    <div className="relative">
-                      {/* Deep Article Content */}
-                      <div
-                        className={`space-y-6 transition-all duration-700 ${
-                          !isUnlocked
-                            ? "filter blur-md select-none opacity-30 pointer-events-none max-h-[380px] overflow-hidden"
-                            : "filter-none opacity-100"
-                        }`}
-                      >
-                        {/* CHARACTERISTICS OF GROUP X */}
-                        <div className="space-y-3">
-                          <h4 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2 font-outfit">
-                            <span className="w-2 h-2 rounded-full bg-brand-500" />
-                            <span>
-                              Characteristics of Group {preview.fullName.article.groupNumber} ({preview.fullName.article.numbersFormatted})
-                            </span>
-                          </h4>
-                          <p className="text-sm text-foreground/90 leading-relaxed font-normal bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                            {preview.fullName.article.characteristics}
-                          </p>
-                        </div>
-
-                        {/* POLARITY DYNAMICS (WHEN CONNECTED TO BAD NUMBERS) */}
-                        <div className="space-y-3">
-                          <h4 className="text-sm font-bold uppercase tracking-wider text-amber-700 flex items-center gap-2 font-outfit">
-                            <ShieldAlert className="w-4 h-4 text-amber-500" />
-                            <span>Polarity Dynamics: When Connected to Unfavorable Numbers</span>
-                          </h4>
-                          <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-sm text-amber-950 leading-relaxed">
-                            {preview.fullName.article.shadowPolarity}
-                          </div>
-                        </div>
-
-                        {/* BE WARY OF / ILLNESSES & HEALTH VULNERABILITIES */}
-                        <div className="space-y-3">
-                          <h4 className="text-sm font-bold uppercase tracking-wider text-rose-700 flex items-center gap-2 font-outfit">
-                            <HeartPulse className="w-4 h-4 text-rose-500" />
-                            <span>Be Wary Of: Health & Physical Vulnerabilities</span>
-                          </h4>
-                          <div className="p-5 rounded-2xl bg-rose-50/70 border border-rose-200/80 text-sm text-rose-950 leading-relaxed">
-                            <span className="font-bold text-rose-900 block mb-1">Illnesses:</span>
-                            <span>{preview.fullName.article.illnessesFormatted}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* =========================================================== */}
-                      {/* FROSTED GLASS PAYWALL OVERLAY (REQUIRES PAYMENT / CREDIT)   */}
-                      {/* =========================================================== */}
-                      {!isUnlocked && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-white/60 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-lg">
-                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-brand-500/25 mb-4 animate-bounce">
-                            <Lock className="w-7 h-7" />
-                          </div>
-
-                          <h3 className="text-xl sm:text-2xl font-black text-foreground font-outfit mb-2">
-                            Complete Full Name Destiny Reading Locked
-                          </h3>
-                          <p className="text-xs sm:text-sm text-muted-foreground max-w-md mb-6 leading-relaxed">
-                            Unlock the comprehensive psychological characteristics, unfavorable number polarity dynamics, and physical illness warnings for{" "}
-                            <span className="font-bold text-foreground">&ldquo;{preview.fullName.inputText}&rdquo;</span>.
-                          </p>
-
-                          {credits.total > 0 ? (
-                            <div className="space-y-3 w-full max-w-xs">
-                              <Button
-                                variant="gradient"
-                                size="lg"
-                                onClick={handleUnlockDossier}
-                                disabled={unlocking}
-                                className="w-full font-bold shadow-lg shadow-brand-500/20"
-                              >
-                                {unlocking ? (
-                                  <span className="flex items-center gap-2">
-                                    <Sparkles className="w-4 h-4 animate-spin" />
-                                    <span>Unlocking Dossier...</span>
-                                  </span>
-                                ) : (
-                                  <span className="flex items-center gap-2">
-                                    <Unlock className="w-4 h-4" />
-                                    <span>Unlock with 1 Credit</span>
-                                  </span>
-                                )}
-                              </Button>
-                              <p className="text-[11px] text-muted-foreground">
-                                You have <span className="font-bold text-brand-600">{credits.total}</span> analysis credits available.
-                              </p>
-                            </div>
-                          ) : (
-                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-sm">
-                              <Link href="/pricing" className="w-full">
-                                <Button variant="gradient" size="lg" className="w-full font-bold">
-                                  <span>Unlock Complete Report — $19</span>
-                                </Button>
-                              </Link>
-                              <Link href="/pricing" className="w-full sm:w-auto">
-                                <Button variant="outline" size="lg" className="w-full text-xs font-semibold">
-                                  <span>View Packages</span>
-                                </Button>
-                              </Link>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Unlocked Actions Toolbar */}
-                    {isUnlocked && (
-                      <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                          <span>This analysis is persisted to your permanent audit history.</span>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleCopyShare}
-                            className="h-9 text-xs"
-                          >
-                            {copied ? (
-                              <Check className="w-3.5 h-3.5 text-emerald-500 mr-1.5" />
-                            ) : (
-                              <Share2 className="w-3.5 h-3.5 mr-1.5" />
-                            )}
-                            <span>{copied ? "Link Copied" : "Share"}</span>
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.print()}
-                            className="h-9 text-xs"
-                          >
-                            <Printer className="w-3.5 h-3.5 mr-1.5" />
-                            <span>Print</span>
-                          </Button>
-                          {savedAnalysisId && (
-                            <Link href={`/analyze/result/${savedAnalysisId}`}>
-                              <Button variant="primary" size="sm" className="h-9 text-xs font-bold">
-                                <span>View 11-Card Full Dossier &rarr;</span>
-                              </Button>
-                            </Link>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                <div className="flex items-center gap-4 bg-slate-50 border border-slate-200/80 p-3.5 rounded-2xl">
+                  <div className="text-center">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
+                      Compound Sum
+                    </span>
+                    <span className="text-3xl font-black text-brand-600 font-outfit">
+                      {preview.firstName.charSum}
+                    </span>
+                  </div>
+                  <div className="h-8 w-px bg-slate-200" />
+                  <div className="text-center">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
+                      Root Vibration
+                    </span>
+                    <span className="text-2xl font-bold text-foreground font-outfit">
+                      {preview.firstName.rootNumber}
+                    </span>
                   </div>
                 </div>
               </div>
-            )}
-          </div>
-        )}
 
-        {/* ========================================================================= */}
-        {/* TAB 2: HARMONIC SURNAME COMPARISON (TEST MULTIPLE SURNAMES)               */}
-        {/* ========================================================================= */}
-        {activeTab === "pairing" && (
-          <div className="space-y-6">
-            <Card variant="science" className="p-6 sm:p-8">
-              <form onSubmit={handlePairingAnalyze} className="space-y-6">
-                <div>
-                  <h2 className="text-lg font-bold text-foreground font-outfit">
-                    Harmonic Surname Pairing & Ranking
-                  </h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Compare candidate surnames against a given name to find the ideal compound vibrational resonance.
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Given Name *
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="e.g. Alexander"
-                    value={pairingFirstName}
-                    onChange={(e) => setPairingFirstName(e.target.value)}
-                    className="h-11 text-sm font-medium"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Candidate Surnames (Up to 5)
-                  </label>
-                  {candidateSurnames.map((cand, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <Input
-                        type="text"
-                        placeholder={`Surname Candidate ${idx + 1}`}
-                        value={cand}
-                        onChange={(e) => {
-                          const updated = [...candidateSurnames];
-                          updated[idx] = e.target.value;
-                          setCandidateSurnames(updated);
-                        }}
-                        className="h-10 text-sm font-medium"
-                      />
-                      {candidateSurnames.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCandidateSurnames(candidateSurnames.filter((_, i) => i !== idx))
-                          }
-                          className="p-2 text-muted-foreground hover:text-rose-500 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+              {/* Phonetic character mapping pills */}
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-2">
+                  Phonetic Letter Values (Decoded Weights):
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {preview.firstName.characters.map((ch, idx) => (
+                    <div
+                      key={idx}
+                      className="flex flex-col items-center px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 min-w-[38px]"
+                    >
+                      <span className="text-xs font-bold text-foreground">
+                        {ch.character}
+                      </span>
+                      <span className="text-[10px] font-black text-brand-600 font-outfit">
+                        {ch.score}
+                      </span>
                     </div>
                   ))}
-                  {candidateSurnames.length < 5 && (
-                    <button
-                      type="button"
-                      onClick={() => setCandidateSurnames([...candidateSurnames, ""])}
-                      className="text-xs font-semibold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Add another candidate surname</span>
-                    </button>
-                  )}
+                </div>
+              </div>
+
+              {/* Article for First Name */}
+              <div className="space-y-4 pt-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 bg-brand-50/70 border border-brand-200/80 p-4 rounded-2xl">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-700 block">
+                      Article for Compound Number {preview.firstName.charSum}
+                    </span>
+                    <h4 className="text-xl font-black text-brand-950 font-outfit mt-0.5">
+                      {preview.firstName.article.title}
+                    </h4>
+                  </div>
+                  <Badge variant="brand">
+                    Group {preview.firstName.article.groupNumber} ({preview.firstName.article.numbersFormatted})
+                  </Badge>
                 </div>
 
-                {error && (
-                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-600 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>{error}</span>
+                {preview.firstName.article.meaningsAndSymbols && (
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 text-xs text-foreground/90 space-y-1">
+                    <span className="font-bold text-foreground uppercase block text-[10px] tracking-wider">
+                      Meanings & Symbols:
+                    </span>
+                    <p className="leading-relaxed">
+                      {preview.firstName.article.meaningsAndSymbols}
+                    </p>
                   </div>
                 )}
 
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="lg"
-                  disabled={pairingLoading}
-                  className="w-full font-bold"
-                >
-                  {pairingLoading ? (
-                    <span className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 animate-spin" />
-                      <span>Ranking Candidates...</span>
+                {preview.firstName.article.characteristics && (
+                  <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200 text-xs text-foreground/90 space-y-1">
+                    <span className="font-bold text-foreground uppercase block text-[10px] tracking-wider">
+                      Characteristics of Group {preview.firstName.article.groupNumber}:
                     </span>
-                  ) : (
-                    <span>Rank Surnames by Harmonic Resonance</span>
-                  )}
-                </Button>
-              </form>
+                    <p className="leading-relaxed">
+                      {preview.firstName.article.characteristics}
+                    </p>
+                  </div>
+                )}
+
+                {preview.firstName.article.lifeDescription && (
+                  <div className="p-4 rounded-xl bg-white border border-slate-200 text-xs text-foreground/90 space-y-1">
+                    <span className="font-bold text-foreground uppercase block text-[10px] tracking-wider flex items-center gap-1.5">
+                      <BookOpen className="w-3.5 h-3.5 text-brand-600" />
+                      Life Influence & Destiny Reading:
+                    </span>
+                    <p className="leading-relaxed">
+                      {preview.firstName.article.lifeDescription}
+                    </p>
+                  </div>
+                )}
+
+                {preview.firstName.article.illnessesFormatted && (
+                  <div className="p-3.5 rounded-xl bg-rose-50/70 border border-rose-200/70 text-xs text-rose-950">
+                    <span className="font-bold text-rose-900 block mb-0.5">
+                      Be Wary Of & Health Precautions:
+                    </span>
+                    <p>{preview.firstName.article.illnessesFormatted}</p>
+                  </div>
+                )}
+              </div>
             </Card>
 
-            {/* Pairing Results Table */}
-            {pairingResults.length > 0 && (
-              <Card variant="science" className="overflow-hidden">
-                <div className="p-5 border-b border-border flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                    Pairing Harmony Leaderboard
+            {/* ===================================================================== */}
+            {/* 2. SURNAME COMPONENT — 40% LIFE IMPACT                                */}
+            {/* ===================================================================== */}
+            <Card variant="science" glow="blue" className="p-6 sm:p-8 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-5">
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Badge variant="brand">2. Surname (Family Name)</Badge>
+                    <Badge variant="indigo">40% Life Impact</Badge>
+                  </div>
+                  <h3 className="text-2xl font-black text-foreground font-outfit">
+                    {preview.surname.inputText}
                   </h3>
-                  <Badge variant="brand">Ranked from Highest to Lowest</Badge>
                 </div>
-                <div className="divide-y divide-border">
-                  {pairingResults.map((item, idx) => (
+
+                <div className="flex items-center gap-4 bg-slate-50 border border-slate-200/80 p-3.5 rounded-2xl">
+                  <div className="text-center">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
+                      Compound Sum
+                    </span>
+                    <span className="text-3xl font-black text-indigo-600 font-outfit">
+                      {preview.surname.charSum}
+                    </span>
+                  </div>
+                  <div className="h-8 w-px bg-slate-200" />
+                  <div className="text-center">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
+                      Root Vibration
+                    </span>
+                    <span className="text-2xl font-bold text-foreground font-outfit">
+                      {preview.surname.rootNumber}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Phonetic character mapping pills */}
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-2">
+                  Phonetic Letter Values (Decoded Weights):
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {preview.surname.characters.map((ch, idx) => (
                     <div
                       key={idx}
-                      className="p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
+                      className="flex flex-col items-center px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 min-w-[38px]"
                     >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                            idx === 0
-                              ? "bg-brand-500 text-white"
-                              : "bg-slate-100 text-muted-foreground"
-                          }`}
-                        >
-                          #{idx + 1}
-                        </span>
-                        <div>
-                          <div className="text-sm font-bold text-foreground">
-                            {pairingFirstName} {item.surname}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            1. Total: {item.totalSum} (Root {item.rootNumber}) • 2. {item.articleTitle}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-base font-black text-brand-600 font-outfit">
-                          {item.score.toFixed(1)}
-                        </span>
-                        <span className="text-xs text-muted-foreground block">/ 100</span>
-                      </div>
+                      <span className="text-xs font-bold text-foreground">
+                        {ch.character}
+                      </span>
+                      <span className="text-[10px] font-black text-indigo-600 font-outfit">
+                        {ch.score}
+                      </span>
                     </div>
                   ))}
                 </div>
-              </Card>
-            )}
+              </div>
+
+              {/* Article for Surname */}
+              <div className="space-y-4 pt-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 bg-indigo-50/70 border border-indigo-200/80 p-4 rounded-2xl">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 block">
+                      Article for Compound Number {preview.surname.charSum}
+                    </span>
+                    <h4 className="text-xl font-black text-indigo-950 font-outfit mt-0.5">
+                      {preview.surname.article.title}
+                    </h4>
+                  </div>
+                  <Badge variant="indigo">
+                    Group {preview.surname.article.groupNumber} ({preview.surname.article.numbersFormatted})
+                  </Badge>
+                </div>
+
+                {preview.surname.article.meaningsAndSymbols && (
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 text-xs text-foreground/90 space-y-1">
+                    <span className="font-bold text-foreground uppercase block text-[10px] tracking-wider">
+                      Meanings & Symbols:
+                    </span>
+                    <p className="leading-relaxed">
+                      {preview.surname.article.meaningsAndSymbols}
+                    </p>
+                  </div>
+                )}
+
+                {preview.surname.article.characteristics && (
+                  <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200 text-xs text-foreground/90 space-y-1">
+                    <span className="font-bold text-foreground uppercase block text-[10px] tracking-wider">
+                      Characteristics of Group {preview.surname.article.groupNumber}:
+                    </span>
+                    <p className="leading-relaxed">
+                      {preview.surname.article.characteristics}
+                    </p>
+                  </div>
+                )}
+
+                {preview.surname.article.lifeDescription && (
+                  <div className="p-4 rounded-xl bg-white border border-slate-200 text-xs text-foreground/90 space-y-1">
+                    <span className="font-bold text-foreground uppercase block text-[10px] tracking-wider flex items-center gap-1.5">
+                      <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
+                      Life Influence & Destiny Reading:
+                    </span>
+                    <p className="leading-relaxed">
+                      {preview.surname.article.lifeDescription}
+                    </p>
+                  </div>
+                )}
+
+                {preview.surname.article.illnessesFormatted && (
+                  <div className="p-3.5 rounded-xl bg-rose-50/70 border border-rose-200/70 text-xs text-rose-950">
+                    <span className="font-bold text-rose-900 block mb-0.5">
+                      Be Wary Of & Health Precautions:
+                    </span>
+                    <p>{preview.surname.article.illnessesFormatted}</p>
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            {/* ===================================================================== */}
+            {/* 3. FULL NAME COMPONENT — 40% (GATED ON 2 FREE TRIALS)                 */}
+            {/* ===================================================================== */}
+            <div className="relative rounded-3xl border border-slate-200 bg-white shadow-xl overflow-hidden">
+              {/* Header Accent Glow */}
+              <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-brand-500 via-indigo-500 to-violet-500" />
+
+              <div className="p-6 sm:p-10 space-y-8">
+                {/* Full Name Identity Meta */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-6 border-b border-slate-100">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Badge variant="brand">3. Full Name Synergy</Badge>
+                      <Badge variant="violet">40% Life Impact</Badge>
+                      <Badge variant="outline">
+                        Composite Harmonic Index: {preview.fullName.finalScore} / 100
+                      </Badge>
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground font-outfit">
+                      {preview.fullName.inputText}
+                    </h2>
+                  </div>
+
+                  {/* Compound Sum for Full Name */}
+                  <div className="flex items-center gap-4 bg-slate-50 border border-slate-200/80 p-4 rounded-2xl">
+                    <div className="text-center">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
+                        Compound Sum
+                      </span>
+                      <span className="text-3xl font-black text-brand-600 font-outfit">
+                        {preview.fullName.totalCompoundSum}
+                      </span>
+                    </div>
+                    <div className="h-8 w-px bg-slate-200" />
+                    <div className="text-center">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
+                        Root Vibration
+                      </span>
+                      <span className="text-2xl font-bold text-foreground font-outfit">
+                        {preview.fullName.rootNumber}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Article Header */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-brand-600">
+                      Article for Compound Number {preview.fullName.totalCompoundSum}
+                    </span>
+                    <span className="text-xs text-muted-foreground">•</span>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      GROUP {preview.fullName.article.groupNumber} ({preview.fullName.article.numbersFormatted})
+                    </span>
+                  </div>
+                  <h3 className="text-2xl sm:text-4xl font-black text-foreground font-outfit tracking-tight">
+                    {preview.fullName.article.title}
+                  </h3>
+                </div>
+
+                {/* Visible Teaser: Meanings & Symbols */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-brand-50/60 border border-brand-200/60 space-y-1.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-brand-700 block">
+                    Meanings & Symbols:
+                  </span>
+                  <p className="text-sm font-semibold text-brand-950 leading-relaxed">
+                    {preview.fullName.article.meaningsAndSymbols}
+                  </p>
+                </div>
+
+                {/* Gated Deep Article Container */}
+                <div className="relative">
+                  {/* Deep Article Content */}
+                  <div
+                    className={`space-y-6 transition-all duration-700 ${
+                      !isUnlocked
+                        ? "filter blur-md select-none opacity-25 pointer-events-none max-h-[360px] overflow-hidden"
+                        : "filter-none opacity-100"
+                    }`}
+                  >
+                    {/* CHARACTERISTICS OF GROUP */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2 font-outfit">
+                        <span className="w-2 h-2 rounded-full bg-brand-500" />
+                        <span>
+                          Characteristics of Group {preview.fullName.article.groupNumber} ({preview.fullName.article.numbersFormatted})
+                        </span>
+                      </h4>
+                      <p className="text-sm text-foreground/90 leading-relaxed font-normal bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                        {preview.fullName.article.characteristics}
+                      </p>
+                    </div>
+
+                    {/* LIFE PREDICTION */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-bold uppercase tracking-wider text-brand-700 flex items-center gap-2 font-outfit">
+                        <BookOpen className="w-4 h-4 text-brand-600" />
+                        <span>Life Influence & Destiny Reading:</span>
+                      </h4>
+                      <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-foreground/95 leading-relaxed">
+                        {preview.fullName.article.lifeDescription}
+                      </div>
+                    </div>
+
+                    {/* POLARITY DYNAMICS (WHEN CONNECTED TO BAD NUMBERS) */}
+                    {preview.fullName.article.shadowPolarity && (
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-amber-700 flex items-center gap-2 font-outfit">
+                          <ShieldAlert className="w-4 h-4 text-amber-500" />
+                          <span>Polarity Dynamics: When Connected to Unfavorable Numbers</span>
+                        </h4>
+                        <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-sm text-amber-950 leading-relaxed">
+                          {preview.fullName.article.shadowPolarity}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* HEALTH & PHYSICAL VULNERABILITIES */}
+                    {preview.fullName.article.illnessesFormatted && (
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-rose-700 flex items-center gap-2 font-outfit">
+                          <HeartPulse className="w-4 h-4 text-rose-500" />
+                          <span>Be Wary Of: Health & Physical Vulnerabilities</span>
+                        </h4>
+                        <div className="p-5 rounded-2xl bg-rose-50/70 border border-rose-200/80 text-sm text-rose-950 leading-relaxed">
+                          <span className="font-bold text-rose-900 block mb-1">
+                            Health Vulnerabilities:
+                          </span>
+                          <span>{preview.fullName.article.illnessesFormatted}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* EXAMPLE NAMES */}
+                    {preview.fullName.article.exampleNames && (
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 font-outfit">
+                          <Award className="w-3.5 h-3.5 text-brand-500" />
+                          <span>Names and Surnames Carrying the Power of this Number:</span>
+                        </h4>
+                        <p className="text-xs font-medium text-slate-700 bg-slate-50 p-3.5 rounded-xl border border-slate-200/70">
+                          {preview.fullName.article.exampleNames}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Frosted Glass Paywall Overlay (If Locked) */}
+                  {!isUnlocked && (
+                    <div className="absolute inset-0 flex items-center justify-center p-4">
+                      <div className="max-w-md w-full p-6 sm:p-8 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-2xl text-center space-y-5 animate-in zoom-in-95 duration-300">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white flex items-center justify-center mx-auto shadow-lg shadow-brand-500/25">
+                          <Lock className="w-7 h-7" />
+                        </div>
+
+                        <div className="space-y-2">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900">
+                            First 2 Analyses Free • Full Name Locked
+                          </span>
+                          <h4 className="text-lg font-extrabold text-foreground font-outfit">
+                            Unlock Full Name Analysis (40% Impact)
+                          </h4>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            The Full Name represents 40% of your total life destiny impact (the composite resonance of Given Name and Surname). Unlock to access the full archetype article, life predictions, polarity dynamics, and health warnings.
+                          </p>
+                        </div>
+
+                        <div className="pt-2 space-y-3">
+                          {credits.total > 0 ? (
+                            <Button
+                              variant="primary"
+                              size="lg"
+                              onClick={handleUnlockDossier}
+                              disabled={unlocking}
+                              className="w-full font-bold shadow-md shadow-brand-500/20"
+                            >
+                              {unlocking ? (
+                                <span className="flex items-center gap-2">
+                                  <Sparkles className="w-4 h-4 animate-spin" />
+                                  <span>Unlocking...</span>
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-2">
+                                  <Unlock className="w-4 h-4" />
+                                  <span>Unlock Full Name Analysis (1 Credit)</span>
+                                </span>
+                              )}
+                            </Button>
+                          ) : (
+                            <Link href="/pricing" className="block w-full">
+                              <Button
+                                variant="primary"
+                                size="lg"
+                                className="w-full font-bold shadow-md shadow-brand-500/20"
+                              >
+                                <span className="flex items-center gap-2">
+                                  <span>Top Up Credits to Unlock (Packages)</span>
+                                  <ArrowRight className="w-4 h-4" />
+                                </span>
+                              </Button>
+                            </Link>
+                          )}
+
+                          <div className="flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
+                            <span>Balance: {credits.total} Credits</span>
+                            <span>•</span>
+                            <Link
+                              href="/pricing"
+                              className="text-brand-600 font-semibold hover:underline"
+                            >
+                              View Pricing Packages
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Actions Bar (When Unlocked) */}
+                  {isUnlocked && (
+                    <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex items-center gap-2 text-xs text-emerald-600 font-semibold">
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Complete Name Dossier Unlocked & Ready</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCopyShare}
+                          className="h-9 text-xs"
+                        >
+                          {copied ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-500 mr-1.5" />
+                          ) : (
+                            <Share2 className="w-3.5 h-3.5 mr-1.5" />
+                          )}
+                          <span>{copied ? "Link Copied" : "Share"}</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.print()}
+                          className="h-9 text-xs"
+                        >
+                          <Printer className="w-3.5 h-3.5 mr-1.5" />
+                          <span>Print / PDF</span>
+                        </Button>
+                        {savedAnalysisId && (
+                          <Link href={`/analyze/result/${savedAnalysisId}`}>
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              className="h-9 text-xs font-bold"
+                            >
+                              <span>View Full 11-Card Dossier &rarr;</span>
+                            </Button>
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </main>

@@ -172,7 +172,7 @@ export default function HomePage() {
                 <div className="mt-10 flex flex-wrap items-center gap-6 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-brand-500" />
-                    <span>2 Free Analyses on Signup</span>
+                    <span>2 Free Trial Analyses</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-brand-500" />
@@ -217,10 +217,10 @@ export default function HomePage() {
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                 {/* Data panels */}
                 <div className="md:col-span-7 space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-xl bg-[#F7F9FC] border border-border/60">
-                      <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Given Name (60%)</div>
-                      <div className="text-lg font-bold text-foreground mt-1">Alexander</div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="p-3.5 rounded-xl bg-[#F7F9FC] border border-border/60">
+                      <div className="text-[9px] font-semibold text-muted-foreground uppercase tracking-widest">Given Name (20%)</div>
+                      <div className="text-base font-bold text-foreground mt-1 truncate">Alexander</div>
                       <div className="flex items-center gap-1.5 mt-2">
                         <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
                           <div className="h-full bg-gradient-to-r from-brand-500 to-indigo-500 rounded-full" style={{ width: "88%" }} />
@@ -228,14 +228,24 @@ export default function HomePage() {
                         <span className="text-xs text-brand-500 font-bold whitespace-nowrap">88</span>
                       </div>
                     </div>
-                    <div className="p-4 rounded-xl bg-[#F7F9FC] border border-border/60">
-                      <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Surname (40%)</div>
-                      <div className="text-lg font-bold text-foreground mt-1">Sterling</div>
+                    <div className="p-3.5 rounded-xl bg-[#F7F9FC] border border-border/60">
+                      <div className="text-[9px] font-semibold text-muted-foreground uppercase tracking-widest">Surname (40%)</div>
+                      <div className="text-base font-bold text-foreground mt-1 truncate">Sterling</div>
                       <div className="flex items-center gap-1.5 mt-2">
                         <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
                           <div className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full" style={{ width: "91%" }} />
                         </div>
                         <span className="text-xs text-indigo-600 font-bold whitespace-nowrap">91</span>
+                      </div>
+                    </div>
+                    <div className="p-3.5 rounded-xl bg-[#F7F9FC] border border-border/60">
+                      <div className="text-[9px] font-semibold text-muted-foreground uppercase tracking-widest">Full Name (40%)</div>
+                      <div className="text-base font-bold text-foreground mt-1 truncate">Total Synergy</div>
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-violet-500 to-purple-600 rounded-full" style={{ width: "90%" }} />
+                        </div>
+                        <span className="text-xs text-violet-600 font-bold whitespace-nowrap">90</span>
                       </div>
                     </div>
                   </div>
@@ -252,7 +262,7 @@ export default function HomePage() {
                       <div className="h-full bg-gradient-to-r from-brand-500 via-indigo-500 to-violet-500 rounded-full transition-all duration-1000" style={{ width: "89.2%" }} />
                     </div>
                     <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
-                      Dynamic Weight Formulation: Given Name 60%, Surname 40% — Analyzed via global Unicode NFC decomposition and acoustic matrix.
+                      Dynamic Weight Formulation: Given Name 20%, Surname 40%, Full Name 40% — Decoded through 1–100 numerology science and acoustic matrix.
                     </p>
                   </div>
                 </div>
@@ -554,7 +564,7 @@ export default function HomePage() {
             {[
               {
                 q: "How many free analyses do I receive upon registering?",
-                a: "Every new account receives 2 complimentary Given Name credits and 2 Surname credits. Combined (Full Name) analyses require a credit package or subscription.",
+                a: "Every new account receives 2 complimentary analyses. The first 2 analyses unlock Given Name (20%) and Surname (40%) complete with their numerology articles. Full Name (40%) synergy and all subsequent analyses require credits or an analysis package.",
               },
               {
                 q: "Can I test multiple candidate surnames with one given name?",
@@ -601,7 +611,7 @@ export default function HomePage() {
                 Behind Your Name?
               </h2>
               <p className="mt-4 text-sm sm:text-base text-white/80 max-w-xl mx-auto">
-                Join thousands of global leaders, innovators, and individuals. Register today to claim your 2 complimentary name analyses.
+                Join thousands of global leaders, innovators, and individuals. Experience name science with 2 complimentary trial analyses.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/signup">

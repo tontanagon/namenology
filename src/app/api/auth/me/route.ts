@@ -45,6 +45,10 @@ export async function GET() {
     // Full name analysis uses 1 combined credit OR 1 pair of (first name + surname)
     const totalCredits = cbBal + Math.min(fnBal, snBal);
 
+    const analysesCount = await prisma.analysis.count({
+      where: { userId: user.id },
+    });
+
     return NextResponse.json({
       authenticated: true,
       user: {
@@ -55,6 +59,7 @@ export async function GET() {
         stripeCustomerId: user.stripeCustomerId,
         createdAt: user.createdAt,
       },
+      analysesCount,
       credits: {
         total: totalCredits,
         firstName: fnBal,

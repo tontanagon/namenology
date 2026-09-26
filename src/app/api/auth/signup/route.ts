@@ -12,7 +12,7 @@ import { createSession, setSessionCookie } from "@/lib/auth/session";
 import { enforceRateLimit, createRateLimitResponse, getClientIp } from "@/lib/security/rate-limiter";
 import { sanitizeString } from "@/lib/security/sanitize";
 import { logger } from "@/lib/logger";
-import { CreditType, CreditSourceType, Role } from "@prisma/client";
+import { Role } from "@prisma/client";
 
 const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -76,70 +76,17 @@ export async function POST(req: NextRequest) {
     // Hash password with Argon2id (OWASP standard)
     const passwordHash = await hashPassword(password);
 
-    // Look up active analysis config to determine free quota limits
-    const activeConfig = await prisma.analysisConfig.findFirst({
-      where: { isActive: true },
-      orderBy: { createdAt: "desc" },
-    });
-
-    const freeFirstNameLimit = activeConfig?.freeFirstNameLimit ?? 2;
-    const freeSurnameLimit = activeConfig?.freeSurnameLimit ?? 2;
-    const freeCombinedLimit = activeConfig?.freeCombinedLimit ?? 0;
-
     const userAgent = req.headers.get("user-agent") || undefined;
 
-    // Transaction-safe creation: User + Free Credit Ledger Entries
-    const newUser = await prisma.$transaction(async (tx) => {
-      const createdUser = await tx.user.create({
-        data: {
-          name: sanitizedName,
-          email: normalizedEmail,
-          passwordHash,
-          role: Role.USER,
-          isActive: true,
-        },
-      });
-
-      // Grant Free First Name Allowance (REQ-B02, REQ-B03)
-      if (freeFirstNameLimit > 0) {
-        await tx.creditLedger.create({
-          data: {
-            userId: createdUser.id,
-            creditType: CreditType.FIRST_NAME,
-            amount: freeFirstNameLimit,
-            sourceType: CreditSourceType.FREE,
-            sourceId: "INITIAL_REGISTRATION_ALLOWANCE",
-          },
-        });
-      }
-
-      // Grant Free Surname Allowance (REQ-B02, REQ-B03)
-      if (freeSurnameLimit > 0) {
-        await tx.creditLedger.create({
-          data: {
-            userId: createdUser.id,
-            creditType: CreditType.SURNAME,
-            amount: freeSurnameLimit,
-            sourceType: CreditSourceType.FREE,
-            sourceId: "INITIAL_REGISTRATION_ALLOWANCE",
-          },
-        });
-      }
-
-      // Free plan must never grant Combined credits unless explicitly configured (REQ-B02, REQ-B40)
-      if (freeCombinedLimit > 0) {
-        await tx.creditLedger.create({
-          data: {
-            userId: createdUser.id,
-            creditType: CreditType.COMBINED,
-            amount: freeCombinedLimit,
-            sourceType: CreditSourceType.FREE,
-            sourceId: "INITIAL_REGISTRATION_ALLOWANCE",
-          },
-        });
-      }
-
-      return createdUser;
+    // Create user (Analysis credits start at 0; initial 2 analyses are provided as free trials tracked via client/state)
+    const newUser = await prisma.user.create({
+      data: {
+        name: sanitizedName,
+        email: normalizedEmail,
+        passwordHash,
+        role: Role.USER,
+        isActive: true,
+      },
     });
 
     // Create session in database
@@ -166,7 +113,7 @@ export async function POST(req: NextRequest) {
           email: newUser.email,
           role: newUser.role,
         },
-        message: "Account created successfully with initial free allowance",
+        message: "Account created successfully",
       },
       { status: 201 }
     );

@@ -76,20 +76,35 @@ export async function POST(req: NextRequest) {
     const surnameCharSum = mapSurname.totalScore;
     const totalCompoundSum = firstCharSum + surnameCharSum;
 
-    // 4. Derive Root Number & Numerology Article (1 - 100)
-    const rootNumber = reduceToRootNumber(totalCompoundSum);
-    const numerologyGroup = getNumerologyGroup(totalCompoundSum);
+    // 4. Derive Articles for all 3 components from our 1-100 knowledge base!
+    const firstNameArticle = getNumerologyGroup(firstCharSum);
+    const surnameArticle = getNumerologyGroup(surnameCharSum);
+    const fullNameArticle = getNumerologyGroup(totalCompoundSum);
 
     // 5. Compute harmonic scores (1 - 100)
+    const maxFirstScore = normFirst.detectedLanguage === "TH" ? 9 : 8;
     const firstNameScore =
       mapFirst.mappedCharacters.length > 0
-        ? (mapFirst.averageScore / 9) * 100
+        ? (mapFirst.averageScore / maxFirstScore) * 100
         : 50;
+
+    const maxSurnameScore = normSurname.detectedLanguage === "TH" ? 9 : 8;
     const surnameScore =
       mapSurname.mappedCharacters.length > 0
-        ? (mapSurname.averageScore / 9) * 100
+        ? (mapSurname.averageScore / maxSurnameScore) * 100
         : 50;
-    const finalScore = firstNameScore * 0.6 + surnameScore * 0.4;
+
+    const allChars = [...mapFirst.mappedCharacters, ...mapSurname.mappedCharacters];
+    const fullNameAvg = allChars.reduce((s, c) => s + c.score, 0) / allChars.length;
+    const maxFullScore =
+      normFirst.detectedLanguage === "TH" || normSurname.detectedLanguage === "TH"
+        ? 9
+        : 8;
+    const fullNameScore = (fullNameAvg / maxFullScore) * 100;
+
+    // Tripartite weighted final score: 20% First Name + 40% Surname + 40% Full Name = 100%
+    const finalScore =
+      firstNameScore * 0.20 + surnameScore * 0.40 + fullNameScore * 0.40;
 
     return NextResponse.json({
       success: true,
@@ -100,7 +115,8 @@ export async function POST(req: NextRequest) {
           charSum: firstCharSum,
           rootNumber: reduceToRootNumber(firstCharSum),
           characters: mapFirst.mappedCharacters,
-          weight: 60,
+          weight: 20, // ส่งผลต่อชีวิต 20%
+          article: firstNameArticle,
         },
         surname: {
           inputText: sanitizedSurname,
@@ -108,14 +124,17 @@ export async function POST(req: NextRequest) {
           charSum: surnameCharSum,
           rootNumber: reduceToRootNumber(surnameCharSum),
           characters: mapSurname.mappedCharacters,
-          weight: 40,
+          weight: 40, // ส่งผลต่อชีวิต 40%
+          article: surnameArticle,
         },
         fullName: {
           inputText: `${sanitizedFirstName} ${sanitizedSurname}`,
           finalScore: Math.round(finalScore * 100) / 100,
-          totalCompoundSum, // 1. เลขรวม
-          rootNumber,       // 1. เลขรวม (Root)
-          article: numerologyGroup, // 2. ชื่อของบทความ + 3. ความหมายหรือบทความ
+          fullNameScore: Math.round(fullNameScore * 100) / 100,
+          totalCompoundSum, // เลขรวม
+          rootNumber: reduceToRootNumber(totalCompoundSum), // เลขรวม (Root)
+          weight: 40, // ส่งผลต่อชีวิต 40%
+          article: fullNameArticle, // บทความชื่อเต็ม
         },
       },
     });

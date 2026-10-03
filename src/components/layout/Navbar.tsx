@@ -21,6 +21,10 @@ interface UserProfile {
   role: string;
 }
 
+interface NavbarProps {
+  variant?: "default" | "cosmic";
+}
+
 /* ── NAMENOLOGY Logo (Inline SVG) ── */
 const NamenologyLogo: React.FC<{ className?: string }> = ({ className }) => (
   <svg
@@ -30,26 +34,27 @@ const NamenologyLogo: React.FC<{ className?: string }> = ({ className }) => (
     className={className}
   >
     {/* Outer orbital ring */}
-    <circle cx="18" cy="18" r="16" stroke="url(#logo-grad)" strokeWidth="1.2" opacity="0.3" />
+    <circle cx="18" cy="18" r="16" stroke="url(#logo-grad)" strokeWidth="1.2" opacity="0.4" />
     {/* Inner orbital ring */}
-    <circle cx="18" cy="18" r="11" stroke="url(#logo-grad)" strokeWidth="1.5" opacity="0.5" />
+    <circle cx="18" cy="18" r="11" stroke="url(#logo-grad)" strokeWidth="1.5" opacity="0.7" />
     {/* Center glow sphere */}
     <circle cx="18" cy="18" r="6" fill="url(#logo-grad)" opacity="0.9" />
     {/* Small orbital dot */}
-    <circle cx="30" cy="10" r="1.5" fill="#22D3EE" />
+    <circle cx="30" cy="10" r="1.5" fill="#0B5CFF" />
     {/* Light point */}
-    <circle cx="18" cy="18" r="2" fill="white" opacity="0.6" />
+    <circle cx="18" cy="18" r="2" fill="white" opacity="0.95" />
     <defs>
       <linearGradient id="logo-grad" x1="0" y1="0" x2="36" y2="36">
         <stop offset="0%" stopColor="#0B5CFF" />
-        <stop offset="50%" stopColor="#4F46E5" />
+        <stop offset="50%" stopColor="#6366F1" />
         <stop offset="100%" stopColor="#7C3AED" />
       </linearGradient>
     </defs>
   </svg>
 );
 
-export const Navbar: React.FC = () => {
+export const Navbar: React.FC<NavbarProps> = ({ variant = "default" }) => {
+  const isCosmic = variant === "cosmic";
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -90,17 +95,21 @@ export const Navbar: React.FC = () => {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/analyze", label: "Analyze Name" },
-    { href: "/#science", label: "The Science" },
-    { href: "/services", label: "Naming Architecture" },
-    { href: "/pricing", label: "Pricing & Plans" },
+    { href: "/#what-is-namenology", label: "What is Namenology" },
+    { href: "/#how-namenology-works", label: "How It Works" },
+    { href: "/#why-different", label: "Why Different" },
   ];
 
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-        scrolled
-          ? "glass-panel-scrolled"
-          : "bg-white/60 backdrop-blur-sm border-b border-transparent"
+        isCosmic
+          ? scrolled
+            ? "bg-[#050716]/90 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/50 text-white"
+            : "bg-[#050716]/60 backdrop-blur-md border-b border-white/5 text-white"
+          : scrolled
+          ? "bg-white/90 backdrop-blur-xl border-b border-indigo-100/90 shadow-sm text-slate-800"
+          : "bg-white/75 backdrop-blur-md border-b border-slate-100/80 text-slate-800"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -108,32 +117,36 @@ export const Navbar: React.FC = () => {
         <Link href="/" className="flex items-center gap-2.5 group">
           <NamenologyLogo className="w-9 h-9 transition-transform duration-300 group-hover:scale-105" />
           <div className="flex items-baseline gap-0">
-            <span className="font-bold text-lg tracking-tight text-brand-500">NAME</span>
-            <span className="font-bold text-lg tracking-tight gradient-text-brand">NOLOGY</span>
+            <span className={`font-bold text-lg tracking-tight ${isCosmic ? "text-white" : "text-blue-600"}`}>
+              NAME
+            </span>
+            <span className="font-bold text-lg tracking-tight gradient-text-cosmic-bright">
+              NOLOGY
+            </span>
           </div>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-muted-foreground">
+        <nav className={`hidden lg:flex items-center gap-8 text-sm font-medium ${isCosmic ? "text-slate-300" : "text-slate-600"}`}>
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="hover:text-brand-500 transition-colors duration-200 relative group"
+              className={`transition-colors duration-200 relative group ${isCosmic ? "hover:text-cyan-300" : "hover:text-blue-600"}`}
             >
               {link.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-500 to-indigo-500 transition-all duration-300 group-hover:w-full" />
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600" />
             </Link>
           ))}
           {user && (
             <>
-              <Link href="/dashboard" className="hover:text-brand-500 transition-colors duration-200">
+              <Link href="/dashboard" className={`transition-colors duration-200 ${isCosmic ? "hover:text-cyan-300" : "hover:text-blue-600"}`}>
                 Dashboard
               </Link>
               {user.role === "ADMIN" && (
                 <Link
                   href="/admin/dashboard"
-                  className="flex items-center gap-1 text-violet-600 font-semibold hover:text-violet-700"
+                  className="flex items-center gap-1 text-purple-600 font-semibold hover:text-purple-700"
                 >
                   <ShieldAlert className="w-3.5 h-3.5" />
                   Admin
@@ -146,12 +159,12 @@ export const Navbar: React.FC = () => {
         {/* Action Buttons */}
         <div className="hidden lg:flex items-center gap-3">
           {loading ? (
-            <div className="w-28 h-9 bg-slate-100 animate-pulse rounded-xl" />
+            <div className={`w-28 h-9 animate-pulse rounded-xl ${isCosmic ? "bg-white/10" : "bg-slate-100"}`} />
           ) : user ? (
             <div className="flex items-center gap-3">
               <Link href="/dashboard">
-                <Button variant="outline" size="sm">
-                  <LayoutDashboard className="w-4 h-4 text-brand-500" />
+                <Button variant="outline" size="sm" className={isCosmic ? "border-white/20 text-white" : "border-slate-200 text-slate-800"}>
+                  <LayoutDashboard className="w-4 h-4 text-blue-600 mr-1.5" />
                   {user.name}
                 </Button>
               </Link>
@@ -159,7 +172,7 @@ export const Navbar: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 onClick={handleSignout}
-                className="text-muted-foreground hover:text-red-500"
+                className={isCosmic ? "text-slate-400 hover:text-rose-400" : "text-slate-500 hover:text-rose-600"}
               >
                 <LogOut className="w-4 h-4" />
               </Button>
@@ -167,15 +180,19 @@ export const Navbar: React.FC = () => {
           ) : (
             <>
               <Link href="/signin">
-                <Button variant="ghost" size="sm">
-                  <User className="w-4 h-4" />
+                <Button variant="ghost" size="sm" className={isCosmic ? "text-slate-200 hover:text-white" : "text-slate-700 hover:text-blue-600"}>
+                  <User className="w-4 h-4 mr-1.5" />
                   Sign In
                 </Button>
               </Link>
               <Link href="/analyze">
-                <Button variant="gradient" size="sm">
+                <Button
+                  variant="gradient"
+                  size="sm"
+                  className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 border border-indigo-400/30"
+                >
                   Analyze Name
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                 </Button>
               </Link>
             </>
@@ -185,7 +202,7 @@ export const Navbar: React.FC = () => {
         {/* Mobile menu button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden p-2 rounded-xl text-muted-foreground hover:bg-slate-50 transition-colors"
+          className={`lg:hidden p-2 rounded-xl transition-colors ${isCosmic ? "text-slate-300 hover:bg-white/10" : "text-slate-600 hover:bg-slate-100"}`}
           aria-label="Toggle menu"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -194,14 +211,20 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile dropdown */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b border-border px-4 py-5 space-y-4 shadow-lg">
+        <div
+          className={`lg:hidden border-b px-4 py-5 space-y-4 shadow-xl ${
+            isCosmic
+              ? "bg-[#080B22] border-white/10 text-white"
+              : "bg-white border-indigo-100 text-slate-800"
+          }`}
+        >
           <div className="flex flex-col space-y-3">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-medium text-foreground hover:text-brand-500 py-1"
+                className={`text-sm font-medium py-1 ${isCosmic ? "text-slate-200 hover:text-cyan-300" : "text-slate-700 hover:text-blue-600"}`}
               >
                 {link.label}
               </Link>
@@ -211,7 +234,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   href="/dashboard"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-sm font-medium text-foreground hover:text-brand-500"
+                  className={`text-sm font-medium ${isCosmic ? "text-slate-200 hover:text-cyan-300" : "text-slate-700 hover:text-blue-600"}`}
                 >
                   Dashboard
                 </Link>
@@ -219,7 +242,7 @@ export const Navbar: React.FC = () => {
                   <Link
                     href="/admin/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="text-sm font-semibold text-violet-600"
+                    className="text-sm font-semibold text-purple-600"
                   >
                     Admin Console
                   </Link>
@@ -227,11 +250,11 @@ export const Navbar: React.FC = () => {
               </>
             )}
           </div>
-          <div className="pt-4 border-t border-border flex flex-col gap-2">
+          <div className={`pt-4 border-t flex flex-col gap-2 ${isCosmic ? "border-white/10" : "border-slate-100"}`}>
             {user ? (
               <>
-                <div className="text-xs text-muted-foreground mb-1">
-                  Signed in as <strong className="text-foreground">{user.email}</strong>
+                <div className={`text-xs mb-1 ${isCosmic ? "text-slate-400" : "text-slate-500"}`}>
+                  Signed in as <strong className={isCosmic ? "text-white" : "text-slate-800"}>{user.email}</strong>
                 </div>
                 <Button
                   variant="outline"
@@ -239,24 +262,24 @@ export const Navbar: React.FC = () => {
                     setMobileMenuOpen(false);
                     handleSignout();
                   }}
-                  className="w-full justify-center text-red-500"
+                  className="w-full justify-center text-rose-600 border-slate-200"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-4 h-4 mr-1.5" />
                   Sign Out
                 </Button>
               </>
             ) : (
               <>
                 <Link href="/signin" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full justify-center">
-                    <User className="w-4 h-4" />
+                  <Button variant="outline" className="w-full justify-center border-slate-200">
+                    <User className="w-4 h-4 mr-1.5" />
                     Sign In
                   </Button>
                 </Link>
                 <Link href="/analyze" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="gradient" className="w-full justify-center">
+                  <Button variant="gradient" className="w-full justify-center bg-gradient-to-r from-blue-600 to-purple-600 text-white">
                     Analyze Name
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                   </Button>
                 </Link>
               </>

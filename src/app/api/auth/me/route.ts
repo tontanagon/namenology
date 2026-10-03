@@ -5,6 +5,7 @@
 // =============================================================================
 
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getCurrentSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { CreditType } from "@prisma/client";
@@ -14,10 +15,25 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const { user } = await getCurrentSession();
+    const cookieStore = await cookies();
+    const cookieTrials = parseInt(
+      cookieStore.get("namenology_free_trials")?.value || "0",
+      10
+    );
 
     if (!user) {
       return NextResponse.json(
-        { authenticated: false, user: null },
+        {
+          authenticated: false,
+          user: null,
+          analysesCount: cookieTrials,
+          credits: {
+            total: 0,
+            firstName: 0,
+            surname: 0,
+            combined: 0,
+          },
+        },
         { status: 200 }
       );
     }
@@ -49,6 +65,8 @@ export async function GET() {
       where: { userId: user.id },
     });
 
+    const effectiveAnalysesCount = Math.max(analysesCount, cookieTrials);
+
     return NextResponse.json({
       authenticated: true,
       user: {
@@ -59,7 +77,7 @@ export async function GET() {
         stripeCustomerId: user.stripeCustomerId,
         createdAt: user.createdAt,
       },
-      analysesCount,
+      analysesCount: effectiveAnalysesCount,
       credits: {
         total: totalCredits,
         firstName: fnBal,

@@ -110,9 +110,9 @@ export default function AnalysisResultDetailPage() {
             label:
               c.label ||
               (compKey === "FIRST_NAME"
-                ? "Given Name"
+                ? "Official First Name"
                 : compKey === "SURNAME"
-                ? "Ancestral Surname"
+                ? "Official Surname"
                 : compKey === "MIDDLE_NAME"
                 ? "Middle Name"
                 : compKey === "NICKNAME"
@@ -485,9 +485,9 @@ export default function AnalysisResultDetailPage() {
 
   const analysisTypeLabel =
     report.analysisType === "FIRST_NAME"
-      ? "Given Name Analysis"
+      ? "Official First Name Analysis"
       : report.analysisType === "SURNAME"
-      ? "Ancestral Surname Analysis"
+      ? "Official Surname Analysis"
       : "Complete Name & Surname Synergy";
 
   return (
@@ -633,7 +633,7 @@ export default function AnalysisResultDetailPage() {
         </Card>
 
         {/* ========================================================================= */}
-        {/* CORE DESTINY ARTICLE: 1.เลขรวม 2.ชื่อของบทความ 3.ความหมายหรือบทความ      */}
+        {/* CORE DESTINY ARTICLE: 1. Compound Sum 2. Article Title 3. Meaning/Reading */}
         {/* ========================================================================= */}
         <Card variant="science" glow="blue" className="p-6 sm:p-10 space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border/80 pb-6">

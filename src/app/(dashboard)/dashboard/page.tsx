@@ -135,7 +135,7 @@ export default async function DashboardPage() {
                   )}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Full Name (Given Name + Surname) analyses remaining
+                Full Name (Official First Name + Official Surname) analyses remaining
               </p>
             </Card>
 
@@ -146,7 +146,7 @@ export default async function DashboardPage() {
                   Name Science Engine
                 </span>
                 <div className="text-base font-bold text-foreground">
-                  Simultaneous First & Surname Analysis
+                  Simultaneous Official First Name & Official Surname Analysis
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Calculate phonetic weights, compound sum, and unlock destiny reading.
@@ -235,7 +235,7 @@ export default async function DashboardPage() {
               </div>
               <h3 className="text-lg font-bold text-foreground">No analyses performed yet</h3>
               <p className="text-xs text-muted-foreground max-w-md mx-auto mt-2 mb-6">
-                Enter your given name or surname to begin calculating individual character vibrations and numeric harmonics.
+                Enter your Official First Name and Official Surname to begin calculating individual character vibrations and numeric harmonics.
               </p>
               <Link href="/analyze">
                 <Button variant="primary" size="sm">

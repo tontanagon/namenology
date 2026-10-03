@@ -85,75 +85,31 @@ export default function AnalyzePage() {
   const [savedAnalysisId, setSavedAnalysisId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Initialize free analyses count from localStorage
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("namenology_free_analyses_count");
-      if (stored !== null) {
-        setFreeAnalysesCount(parseInt(stored, 10) || 0);
-      }
-    }
-  }, []);
-
-  const fetchCredits = async () => {
-    try {
-      const res = await fetch("/api/auth/me");
-      const data = await res.json();
-      if (data.authenticated) {
-        if (data.credits) {
-          setCredits({
-            total:
-              data.credits.total ??
-              data.credits.combined +
-                Math.min(data.credits.firstName, data.credits.surname),
-            firstName: data.credits.firstName ?? 0,
-            surname: data.credits.surname ?? 0,
-            combined: data.credits.combined ?? 0,
-          });
-        }
-        if (typeof data.analysesCount === "number") {
-          setFreeAnalysesCount((prev) => Math.max(prev, data.analysesCount));
-          if (typeof window !== "undefined") {
-            localStorage.setItem(
-              "namenology_free_analyses_count",
-              Math.max(data.analysesCount).toString()
-            );
-          }
-        }
-      }
-    } catch {
-      // offline fallback
-    }
-  };
-
-  useEffect(() => {
-    fetchCredits();
-  }, []);
-
-  // ---------------------------------------------------------------------------
-  // Execute Name Analysis
-  // - Runs 1 & 2: Free trial (Given Name 20% & Surname 40% unlocked, Full Name 40% locked)
-  // - Run 3+: Requires payment or credit to analyze & unlocks all 3 parts
-  // ---------------------------------------------------------------------------
-  const handleCalculatePreview = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Shared execute analysis function
+  const executeAnalysis = async (
+    fName: string,
+    sName: string,
+    overrideCount?: number,
+    overrideCredits?: CreditBalances
+  ) => {
     setError(null);
+    const trimmedFirst = fName.trim();
+    const trimmedSurname = sName.trim();
 
-    const fName = firstName.trim();
-    const sName = surname.trim();
-
-    if (!fName || !sName) {
-      setError("Please provide both Given Name and Surname to compute the complete analysis.");
+    if (!trimmedFirst || !trimmedSurname) {
+      setError("Please provide both Official First Name and Official Surname to compute the complete analysis.");
       return;
     }
 
-    // Check if free trials are exhausted (>= 2)
-    const isFreeTrial = freeAnalysesCount < 2;
+    const currentCount = overrideCount !== undefined ? overrideCount : freeAnalysesCount;
+    const currentCredits = overrideCredits !== undefined ? overrideCredits : credits;
+    const isFreeTrial = currentCount < 2;
 
-    if (!isFreeTrial && credits.total <= 0) {
+    if (!isFreeTrial && currentCredits.total <= 0) {
       setError(
         "You have used your 2 free trial analyses. Subsequent analyses require credits. Please purchase a package to continue."
       );
+      setPreview(null);
       return;
     }
 
@@ -161,13 +117,12 @@ export default function AnalyzePage() {
     setSavedAnalysisId(null);
 
     try {
-      // 1. Fetch preview calculation
       const res = await fetch("/api/analysis/preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          firstName: fName,
-          surname: sName,
+          firstName: trimmedFirst,
+          surname: trimmedSurname,
         }),
       });
 
@@ -175,6 +130,10 @@ export default function AnalyzePage() {
 
       if (!res.ok) {
         setError(data.error || "Calculation failed. Please verify character inputs.");
+        setPreview(null);
+        if (res.status === 403) {
+          setFreeAnalysesCount((prev) => Math.max(prev, 2));
+        }
         setLoading(false);
         return;
       }
@@ -182,9 +141,8 @@ export default function AnalyzePage() {
       setPreview(data.data);
 
       if (isFreeTrial) {
-        // Free trial: Given Name & Surname available, Full Name locked
         setIsUnlocked(false);
-        const newCount = freeAnalysesCount + 1;
+        const newCount = currentCount + 1;
         setFreeAnalysesCount(newCount);
         if (typeof window !== "undefined") {
           localStorage.setItem(
@@ -193,15 +151,14 @@ export default function AnalyzePage() {
           );
         }
       } else {
-        // Paid run (3+): Automatically consume credit and unlock full dossier
         try {
           const authRes = await fetch("/api/analysis", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               analysisType: "COMBINED",
-              firstName: fName,
-              surname: sName,
+              firstName: trimmedFirst,
+              surname: trimmedSurname,
             }),
           });
           const authData = await authRes.json();
@@ -225,6 +182,119 @@ export default function AnalyzePage() {
       setError("Network connection error. Please try again.");
       setLoading(false);
     }
+  };
+
+  const fetchCredits = async (): Promise<{
+    count: number;
+    creds: CreditBalances;
+  }> => {
+    let count = 0;
+    let creds: CreditBalances = {
+      total: 0,
+      firstName: 0,
+      surname: 0,
+      combined: 0,
+    };
+
+    try {
+      const res = await fetch("/api/auth/me");
+      const data = await res.json();
+      if (data) {
+        if (data.credits) {
+          creds = {
+            total:
+              data.credits.total ??
+              data.credits.combined +
+                Math.min(data.credits.firstName, data.credits.surname),
+            firstName: data.credits.firstName ?? 0,
+            surname: data.credits.surname ?? 0,
+            combined: data.credits.combined ?? 0,
+          };
+          setCredits(creds);
+        }
+        if (typeof data.analysesCount === "number") {
+          count = data.analysesCount;
+          setFreeAnalysesCount((prev) => {
+            const next = Math.max(prev, count);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("namenology_free_analyses_count", next.toString());
+            }
+            return next;
+          });
+        }
+      }
+    } catch {
+      // offline fallback
+    }
+
+    return { count, creds };
+  };
+
+  // Initialize free analyses count from localStorage and check query params safely
+  useEffect(() => {
+    let isMounted = true;
+
+    async function initPage() {
+      let localTrialCount = 0;
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("namenology_free_analyses_count");
+        if (stored !== null) {
+          localTrialCount = parseInt(stored, 10) || 0;
+          setFreeAnalysesCount(localTrialCount);
+        }
+      }
+
+      // Fetch authoritative count & credits from server first
+      const { count: serverCount, creds: serverCredits } = await fetchCredits();
+      if (!isMounted) return;
+
+      const effectiveCount = Math.max(localTrialCount, serverCount);
+
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        const fn = params.get("firstName");
+        const sn = params.get("surname");
+        if (fn) setFirstName(fn);
+        if (sn) setSurname(sn);
+
+        if (fn && sn) {
+          // Check quota: if free trials are exhausted (>=2) and user has no credits (<=0),
+          // DO NOT auto-execute analysis!
+          if (effectiveCount >= 2 && serverCredits.total <= 0) {
+            setError(
+              "You have used your 2 free trial analyses. Subsequent analyses require credits. Please purchase a package to continue."
+            );
+            setPreview(null);
+            return;
+          }
+
+          executeAnalysis(fn, sn, effectiveCount, serverCredits);
+        }
+      }
+    }
+
+    initPage();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // ---------------------------------------------------------------------------
+  // Execute Name Analysis
+  // - Runs 1 & 2: Free trial (Official First Name 40% & Official Surname 20% unlocked, Full Name 40% locked)
+  // - Run 3+: Requires payment or credit to analyze & unlocks all 3 parts
+  // ---------------------------------------------------------------------------
+  const handleCalculatePreview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (freeAnalysesCount >= 2 && credits.total <= 0) {
+      setError(
+        "You have used your 2 free trial analyses. Subsequent analyses require credits. Please purchase a package to continue."
+      );
+      setPreview(null);
+      return;
+    }
+    executeAnalysis(firstName, surname);
   };
 
   // ---------------------------------------------------------------------------
@@ -304,7 +374,7 @@ export default function AnalyzePage() {
               Scientific Name Resonance & Numerology
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              Analyze in 3 distinct dimensions: Given Name (20%) + Surname (40%) + Full Name (40%) decoded through the 1–100 numerology science.
+              Analyze in 3 distinct dimensions: Official First Name (40%) + Official Surname (20%) + Full Name (40%) decoded through the 1–100 numerology science.
             </p>
           </div>
 
@@ -346,7 +416,7 @@ export default function AnalyzePage() {
                   <span className="font-bold text-brand-600">
                     {2 - freeAnalysesCount} remaining
                   </span>{" "}
-                  (Given Name 20% & Surname 40% are unlocked for free)
+                  (Official First Name 40% & Official Surname 20% are unlocked for free)
                 </p>
               ) : (
                 <p className="font-semibold text-amber-900">
@@ -377,12 +447,12 @@ export default function AnalyzePage() {
         <Card variant="science" glow="blue" className="p-6 sm:p-8">
           <form onSubmit={handleCalculatePreview} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {/* First Name Input */}
+              {/* Official First Name Input */}
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                  <span>Given Name (First Name) *</span>
+                  <span>Official First Name *</span>
                   <Badge variant="brand" className="text-[10px] py-0 px-2">
-                    20% Life Impact
+                    40% Life Impact
                   </Badge>
                 </label>
                 <Input
@@ -398,17 +468,17 @@ export default function AnalyzePage() {
                 </p>
               </div>
 
-              {/* Surname Input */}
+              {/* Official Surname Input */}
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                  <span>Surname (Family Name) *</span>
+                  <span>Official Surname *</span>
                   <Badge variant="indigo" className="text-[10px] py-0 px-2">
-                    40% Life Impact
+                    20% Life Impact
                   </Badge>
                 </label>
                 <Input
                   type="text"
-                  placeholder="e.g. Vance"
+                  placeholder="e.g. Sterling"
                   value={surname}
                   onChange={(e) => setSurname(e.target.value)}
                   className="h-12 text-sm font-medium"
@@ -421,9 +491,23 @@ export default function AnalyzePage() {
             </div>
 
             {error && (
-              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-600 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{error}</span>
+              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{error}</span>
+                </div>
+                {error.includes("2 free trial analyses") && (
+                  <Link href="/pricing" className="shrink-0">
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="sm"
+                      className="h-8 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white"
+                    >
+                      Purchase Credits &rarr;
+                    </Button>
+                  </Link>
+                )}
               </div>
             )}
 
@@ -435,45 +519,54 @@ export default function AnalyzePage() {
                 </span>
               </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                disabled={loading || !firstName.trim() || !surname.trim()}
-                className="w-full sm:w-auto px-8 font-bold"
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 animate-spin" />
-                    <span>Computing Vibration...</span>
-                  </span>
-                ) : freeAnalysesCount < 2 ? (
-                  <span className="flex items-center gap-2">
-                    <Compass className="w-4 h-4" />
-                    <span>
-                      Calculate Name Resonance (Free Trial {freeAnalysesCount + 1}/2)
+              {freeAnalysesCount >= 2 && credits.total <= 0 ? (
+                <Link href="/pricing" className="w-full sm:w-auto">
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="lg"
+                    className="w-full sm:w-auto px-8 font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-500/20"
+                  >
+                    <Lock className="w-4 h-4 mr-2" />
+                    <span>Free Trial Expired — Purchase Credits</span>
+                  </Button>
+                </Link>
+              ) : (
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  disabled={loading || !firstName.trim() || !surname.trim()}
+                  className="w-full sm:w-auto px-8 font-bold"
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 animate-spin" />
+                      <span>Computing Vibration...</span>
                     </span>
-                  </span>
-                ) : credits.total > 0 ? (
-                  <span className="flex items-center gap-2">
-                    <Compass className="w-4 h-4" />
-                    <span>Analyze Full Dossier (1 Credit)</span>
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <Lock className="w-4 h-4" />
-                    <span>Top Up Credits to Continue</span>
-                  </span>
-                )}
-              </Button>
+                  ) : freeAnalysesCount < 2 ? (
+                    <span className="flex items-center gap-2">
+                      <Compass className="w-4 h-4" />
+                      <span>
+                        Calculate Name Resonance (Free Trial {freeAnalysesCount + 1}/2)
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Compass className="w-4 h-4" />
+                      <span>Analyze Full Dossier (1 Credit)</span>
+                    </span>
+                  )}
+                </Button>
+              )}
             </div>
           </form>
         </Card>
 
         {/* ========================================================================= */}
         {/* ANALYSIS RESULTS: 3 MAPPING SECTIONS                                      */}
-        {/* 1. Given Name (20%)                                                       */}
-        {/* 2. Surname (40%)                                                          */}
+        {/* 1. Official First Name (40%)                                              */}
+        {/* 2. Official Surname (20%)                                                 */}
         {/* 3. Full Name (40%) (Gated on 2 free trials, unlocked via credit)          */}
         {/* ========================================================================= */}
         {preview && (
@@ -485,7 +578,7 @@ export default function AnalyzePage() {
                   Analysis Results for &ldquo;{preview.fullName.inputText}&rdquo;
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Tripartite analysis: Given Name (20%) • Surname (40%) • Full Name (40%)
+                  Tripartite analysis: Official First Name (40%) • Official Surname (20%) • Full Name (40%)
                 </p>
               </div>
               {isUnlocked ? (
@@ -502,14 +595,14 @@ export default function AnalyzePage() {
             </div>
 
             {/* ===================================================================== */}
-            {/* 1. GIVEN NAME COMPONENT — 20% LIFE IMPACT                             */}
+            {/* 1. OFFICIAL FIRST NAME COMPONENT — 40% LIFE IMPACT                    */}
             {/* ===================================================================== */}
             <Card variant="science" glow="blue" className="p-6 sm:p-8 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-5">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <Badge variant="brand">1. Given Name</Badge>
-                    <Badge variant="indigo">20% Life Impact</Badge>
+                    <Badge variant="brand">1. Official First Name</Badge>
+                    <Badge variant="indigo">40% Life Impact</Badge>
                   </div>
                   <h3 className="text-2xl font-black text-foreground font-outfit">
                     {preview.firstName.inputText}
@@ -621,14 +714,14 @@ export default function AnalyzePage() {
             </Card>
 
             {/* ===================================================================== */}
-            {/* 2. SURNAME COMPONENT — 40% LIFE IMPACT                                */}
+            {/* 2. OFFICIAL SURNAME COMPONENT — 20% LIFE IMPACT                       */}
             {/* ===================================================================== */}
             <Card variant="science" glow="blue" className="p-6 sm:p-8 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-5">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <Badge variant="brand">2. Surname (Family Name)</Badge>
-                    <Badge variant="indigo">40% Life Impact</Badge>
+                    <Badge variant="brand">2. Official Surname</Badge>
+                    <Badge variant="indigo">20% Life Impact</Badge>
                   </div>
                   <h3 className="text-2xl font-black text-foreground font-outfit">
                     {preview.surname.inputText}
@@ -754,7 +847,7 @@ export default function AnalyzePage() {
                       <Badge variant="brand">3. Full Name Synergy</Badge>
                       <Badge variant="violet">40% Life Impact</Badge>
                       <Badge variant="outline">
-                        Composite Harmonic Index: {preview.fullName.finalScore} / 100
+                        Composite Harmonic Score: {preview.fullName.finalScore} / 100
                       </Badge>
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground font-outfit">
@@ -903,7 +996,7 @@ export default function AnalyzePage() {
                             Unlock Full Name Analysis (40% Impact)
                           </h4>
                           <p className="text-xs text-muted-foreground leading-relaxed">
-                            The Full Name represents 40% of your total life destiny impact (the composite resonance of Given Name and Surname). Unlock to access the full archetype article, life predictions, polarity dynamics, and health warnings.
+                            The Full Name represents 40% of your total life destiny impact (the composite resonance of Official First Name and Official Surname). Unlock to access the full archetype article, life predictions, polarity dynamics, and health warnings.
                           </p>
                         </div>
 
@@ -1007,6 +1100,37 @@ export default function AnalyzePage() {
               </div>
             </div>
           </div>
+        )}
+
+        {!preview && freeAnalysesCount >= 2 && credits.total <= 0 && (
+          <Card
+            variant="science"
+            glow="gold"
+            className="p-8 text-center space-y-4 border-amber-200 bg-amber-50/40 animate-in fade-in duration-300"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center mx-auto text-amber-700">
+              <Lock className="w-6 h-6" />
+            </div>
+            <div className="max-w-md mx-auto space-y-1.5">
+              <h3 className="text-lg font-bold text-slate-900 font-outfit">
+                Free Trial Quota Reached (2/2 Used)
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                You have used both complimentary trial analyses. To compute name resonance, unlock full 100% synergy readings, and generate comprehensive destiny dossiers, please top up credits.
+              </p>
+            </div>
+            <div className="pt-2">
+              <Link href="/pricing">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="px-6 font-bold bg-amber-600 hover:bg-amber-700 text-white"
+                >
+                  View Credit Packages &rarr;
+                </Button>
+              </Link>
+            </div>
+          </Card>
         )}
       </main>
     </div>

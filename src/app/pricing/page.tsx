@@ -131,7 +131,7 @@ export default function PricingPage() {
             <div>
               <h2 className="text-xl font-bold text-foreground font-outfit">Name Analysis Packages</h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Each complete set includes: 1 Given Name + 1 Ancestral Surname + 1 Composite Harmonic Dossier
+                Each complete set includes: 1 Official First Name + 1 Official Surname + 1 Composite Harmonic Dossier
               </p>
             </div>
             <Badge variant="indigo" className="hidden sm:inline-flex">
@@ -194,11 +194,11 @@ export default function PricingPage() {
                       </span>
                       <div className="flex items-center gap-2 text-foreground">
                         <CheckCircle2 className="w-4 h-4 text-brand-500 shrink-0" />
-                        <span>{firstNames} Given Name Evaluations</span>
+                        <span>{firstNames} Official First Name Evaluations</span>
                       </div>
                       <div className="flex items-center gap-2 text-foreground">
                         <CheckCircle2 className="w-4 h-4 text-brand-500 shrink-0" />
-                        <span>{surnames} Ancestral Surname Evaluations</span>
+                        <span>{surnames} Official Surname Evaluations</span>
                       </div>
                       <div className="flex items-center gap-2 text-foreground">
                         <CheckCircle2

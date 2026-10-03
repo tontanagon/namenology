@@ -52,18 +52,18 @@ export class AnalysisService {
 
     if (analysisType === CreditType.FIRST_NAME) {
       if (!firstName || !firstName.trim()) {
-        throw new Error("First name is required for First Name Analysis.");
+        throw new Error("Official First Name is required for Official First Name Analysis.");
       }
       inputs.push({ key: "FIRST_NAME", text: firstName.trim() });
     } else if (analysisType === CreditType.SURNAME) {
       if (!surname || !surname.trim()) {
-        throw new Error("Surname is required for Surname Analysis.");
+        throw new Error("Official Surname is required for Official Surname Analysis.");
       }
       inputs.push({ key: "SURNAME", text: surname.trim() });
     } else if (analysisType === CreditType.COMBINED) {
       if (!firstName || !firstName.trim() || !surname || !surname.trim()) {
         throw new Error(
-          "Both First Name and Surname are required for Combined Analysis."
+          "Both Official First Name and Official Surname are required for Combined Analysis."
         );
       }
       inputs.push({ key: "FIRST_NAME", text: firstName.trim() });
@@ -264,9 +264,9 @@ export class AnalysisService {
         componentKey: c.componentKey,
         label:
           c.componentKey === "FIRST_NAME"
-            ? "Given Name"
+            ? "Official First Name"
             : c.componentKey === "SURNAME"
-            ? "Ancestral Surname"
+            ? "Official Surname"
             : c.componentKey === "MIDDLE_NAME"
             ? "Middle Name"
             : c.componentKey === "NICKNAME"

@@ -60,12 +60,9 @@ export const NameAnalyzePath: React.FC = () => {
               <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
             </div>
             <span className="font-mono text-slate-600 text-xs hidden sm:inline font-medium">
-              solarsystem_vibrational_matrix_v2.4
+              DISCOVER WHAT YOUR NAME REVEALS
             </span>
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/70">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-              Deterministic Solar Engine
-            </div>
+
           </div>
 
           <div className="flex items-center gap-2">
@@ -137,7 +134,7 @@ export const NameAnalyzePath: React.FC = () => {
                   className="w-full h-12 text-sm font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/35 transition-all duration-300"
                 >
                   <Sparkles className="w-4 h-4 mr-1.5 text-cyan-200 animate-pulse" />
-                  Analyze Name
+                  Analyze My Name
                   <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Button>
               </div>
@@ -145,8 +142,10 @@ export const NameAnalyzePath: React.FC = () => {
 
             {/* Quick Presets / Suggestions */}
             <div className="flex flex-wrap items-center gap-2 pt-2 text-xs text-slate-500">
-              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Try sample:</span>
-              {presets.map((preset) => (
+              {/* <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Try sample:</span> */}
+              <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+              <span className="text-[11px] uppercase tracking-wider text-slate-800 font-semibold">Enter your information to explore your Personality, Life Influences & Relationships, and Well-Being 2  free name analyses included.</span>
+              {/* {presets.map((preset) => (
                 <button
                   type="button"
                   key={preset.first + preset.last}
@@ -158,7 +157,7 @@ export const NameAnalyzePath: React.FC = () => {
                 >
                   {preset.first} {preset.last}
                 </button>
-              ))}
+              ))} */}
             </div>
 
             {/* Error Message */}
@@ -229,10 +228,10 @@ export const NameAnalyzePath: React.FC = () => {
 
           {/* Bottom Trust Line */}
           <div className="mt-5 pt-4 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
               <span>2 Complimentary Analyses Included · No Credit Card Required</span>
-            </div>
+            </div> */}
             <div className="flex items-center gap-1.5 text-purple-700 font-semibold text-[11px]">
               <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
               <span>100% Deterministic & Auditable</span>

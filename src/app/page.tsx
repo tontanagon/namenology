@@ -119,9 +119,9 @@ export default function HomePage() {
                 <span className="block text-2xl sm:text-3xl lg:text-4xl font-medium tracking-widest text-slate-500 uppercase mb-2">
                   NAMENOLOGY
                 </span>
-                The Power of Your Name
+                The Power of Your
                 <br />
-                The Path of Your Life
+                <span className="gradient-text-cosmic-bright">The Path of Your Life</span>
               </h1>
 
               {/* 1. HEAD - LITTLE DESCRIPTION */}

@@ -53,11 +53,18 @@ export default function AnalysisHistoryPage() {
       const res = await fetch(`/api/analysis?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
-        setItems(data.analyses || []);
-        setTotal(data.total || 0);
+        const list = data.items || data.analyses || [];
+        setItems(
+          list.map((it: any) => ({
+            ...it,
+            finalScore: Number(it.finalScore || 0),
+            rawScore: Number(it.rawScore || 0),
+          }))
+        );
+        setTotal(data.total ?? list.length ?? 0);
       }
-    } catch {
-      // Ignored
+    } catch (err) {
+      console.error("Failed to load analysis history:", err);
     } finally {
       setLoading(false);
     }
@@ -69,7 +76,7 @@ export default function AnalysisHistoryPage() {
 
   // Client-side search filtering
   const filteredItems = items.filter((item) =>
-    item.inputText.toLowerCase().includes(searchQuery.toLowerCase())
+    (item.inputText || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // CSV Export (REQ-B47)
@@ -80,10 +87,10 @@ export default function AnalysisHistoryPage() {
     const rows = items.map((i) => [
       i.id,
       i.analysisType,
-      `"${i.inputText.replace(/"/g, '""')}"`,
-      i.finalScore,
-      i.calculationVersion,
-      new Date(i.createdAt).toISOString(),
+      `"${(i.inputText || "").replace(/"/g, '""')}"`,
+      Number(i.finalScore || 0),
+      i.calculationVersion || "1.0",
+      new Date(i.createdAt || Date.now()).toISOString(),
     ]);
 
     const csvContent =

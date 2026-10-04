@@ -111,17 +111,31 @@ export async function GET(req: NextRequest) {
     }
 
     const searchParams = req.nextUrl.searchParams;
-    const limit = parseInt(searchParams.get("limit") || "20", 10);
-    const offset = parseInt(searchParams.get("offset") || "0", 10);
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const pageParam = searchParams.get("page");
+    const offsetParam = searchParams.get("offset");
+    const offset = offsetParam !== null
+      ? Math.max(0, parseInt(offsetParam, 10))
+      : pageParam !== null
+      ? Math.max(0, (parseInt(pageParam, 10) - 1) * limit)
+      : 0;
+
     const typeParam = searchParams.get("type") as CreditType | null;
 
     const history = await analysisService.getUserHistory(user.id, {
-      limit: Math.min(100, Math.max(1, limit)),
-      offset: Math.max(0, offset),
+      limit,
+      offset,
       type: typeParam && Object.values(CreditType).includes(typeParam) ? typeParam : undefined,
     });
 
-    return NextResponse.json(history);
+    return NextResponse.json({
+      success: true,
+      items: history.items,
+      analyses: history.items,
+      total: history.total,
+      limit: history.limit,
+      offset: history.offset,
+    });
   } catch (error) {
     logger.error("ANALYSIS", "List analyses failed", error);
     return NextResponse.json({ error: "Internal server error." }, { status: 500 });

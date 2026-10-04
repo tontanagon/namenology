@@ -295,7 +295,6 @@ const LifePathAlignmentSvg = () => (
    ═══════════════════════════════════════════════════════════════ */
 const STEPS = [
   {
-    step: "01",
     tag: "Cosmic Identity",
     title: "Cosmic Structure",
     slug: "cosmic-structure",
@@ -305,7 +304,6 @@ const STEPS = [
     svg: <CosmicStructureSvg />,
   },
   {
-    step: "02",
     tag: "Chaldean Matrix",
     title: "Cosmic Code",
     slug: "cosmic-code",
@@ -315,7 +313,6 @@ const STEPS = [
     svg: <CosmicCodeSvg />,
   },
   {
-    step: "03",
     tag: "Global Standard",
     title: "Letter Conversion",
     slug: "letter-conversion",
@@ -325,7 +322,6 @@ const STEPS = [
     svg: <LetterConversionSvg />,
   },
   {
-    step: "04",
     tag: "Tripartite Synthesis",
     title: "Name Analysis",
     slug: "name-analysis",
@@ -335,7 +331,6 @@ const STEPS = [
     svg: <NameAnalysisSvg />,
   },
   {
-    step: "05",
     tag: "Destiny Optimization",
     title: "Life Path Alignment",
     slug: "life-path-alignment",
@@ -374,11 +369,19 @@ export const HowItWorksSection: React.FC = () => {
         </div>
 
         {/* ================================================================= */}
-        {/* 5-STEP ARCHITECTURE CARDS                                         */}
+        {/* 5-STAGE ARCHITECTURE CARDS (3:2 ROWS)                             */}
         {/* ================================================================= */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-6 max-w-6xl mx-auto">
           {STEPS.map((item, index) => {
             const isHovered = activeStep === index;
+            // 3:2 layout:
+            // Row 1 (first 3 cards): span 2 cols each (2 + 2 + 2 = 6 cols)
+            // Row 2 (last 2 cards): span 2 cols each, centered (col-start-2 leaves cols 1 and 6 empty)
+            const gridColClass =
+              index === 3
+                ? "md:col-span-2 md:col-start-2"
+                : "md:col-span-2";
+
             return (
               <div
                 key={item.slug}
@@ -388,6 +391,7 @@ export const HowItWorksSection: React.FC = () => {
                 className={`
                   relative rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between
                   border bg-white hover:-translate-y-1.5
+                  ${gridColClass}
                   ${
                     isHovered
                       ? "border-blue-400 shadow-xl shadow-blue-500/10"
@@ -396,12 +400,9 @@ export const HowItWorksSection: React.FC = () => {
                 `}
               >
                 <div>
-                  {/* Top Step Number & Tag */}
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <span className="font-mono text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200/70 px-2 py-0.5 rounded">
-                      {item.step}
-                    </span>
-                    <span className="text-[10px] font-semibold text-purple-700 uppercase tracking-wider">
+                  {/* Top Tag */}
+                  <div className="flex items-center justify-center mb-4">
+                    <span className="text-[10px] sm:text-[11px] font-semibold text-purple-700 uppercase tracking-wider bg-purple-50/90 border border-purple-200/70 px-3 py-1 rounded-full">
                       {item.tag}
                     </span>
                   </div>

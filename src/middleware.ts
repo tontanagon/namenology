@@ -16,6 +16,7 @@ const PROTECTED_PREFIXES = [
   "/account",
   "/subscription",
   "/analysis-history",
+  "/history",
   "/admin",
   "/services/orders",
 ];

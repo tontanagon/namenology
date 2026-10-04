@@ -105,7 +105,7 @@ export class AnalysisRepository {
       ...(options?.type ? { analysisType: options.type } : {}),
     };
 
-    const [items, total] = await Promise.all([
+    const [rawItems, total] = await Promise.all([
       prisma.analysis.findMany({
         where,
         orderBy: { createdAt: "desc" },
@@ -117,6 +117,12 @@ export class AnalysisRepository {
       }),
       prisma.analysis.count({ where }),
     ]);
+
+    const items = rawItems.map((item) => ({
+      ...item,
+      finalScore: Number(item.finalScore),
+      rawScore: Number(item.rawScore),
+    }));
 
     return { items, total, limit, offset };
   }

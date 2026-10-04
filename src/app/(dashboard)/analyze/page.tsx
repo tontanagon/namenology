@@ -139,6 +139,9 @@ export default function AnalyzePage() {
       }
 
       setPreview(data.data);
+      if (data.savedAnalysisId || data.analysisId) {
+        setSavedAnalysisId(data.savedAnalysisId || data.analysisId);
+      }
 
       if (isFreeTrial) {
         setIsUnlocked(false);

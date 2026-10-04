@@ -164,8 +164,63 @@ export async function POST(req: NextRequest) {
     const finalScore =
       firstNameScore * 0.40 + surnameScore * 0.20 + fullNameScore * 0.40;
 
+    // Save to database if user is authenticated so it's archived in history
+    let savedAnalysisId: string | null = null;
+    if (user) {
+      try {
+        const record = await prisma.analysis.create({
+          data: {
+            userId: user.id,
+            analysisType: "COMBINED",
+            inputText: `${sanitizedFirstName} ${sanitizedSurname}`,
+            normalizedText: `${sanitizedFirstName} ${sanitizedSurname}`,
+            rawScore: finalScore,
+            finalScore: Math.round(finalScore * 100) / 100,
+            calculationVersion: "1.0",
+            components: {
+              create: [
+                {
+                  componentKey: "FIRST_NAME",
+                  inputText: sanitizedFirstName,
+                  score: Math.round(firstNameScore * 100) / 100,
+                  weightUsed: 40,
+                },
+                {
+                  componentKey: "SURNAME",
+                  inputText: sanitizedSurname,
+                  score: Math.round(surnameScore * 100) / 100,
+                  weightUsed: 20,
+                },
+              ],
+            },
+            characterDetails: {
+              create: [
+                ...mapFirst.mappedCharacters.map((mc) => ({
+                  componentKey: "FIRST_NAME",
+                  character: mc.character,
+                  position: mc.position,
+                  mappedScore: mc.score,
+                })),
+                ...mapSurname.mappedCharacters.map((mc) => ({
+                  componentKey: "SURNAME",
+                  character: mc.character,
+                  position: mc.position,
+                  mappedScore: mc.score,
+                })),
+              ],
+            },
+          },
+        });
+        savedAnalysisId = record.id;
+      } catch (saveErr) {
+        console.error("Failed to archive analysis record:", saveErr);
+      }
+    }
+
     const response = NextResponse.json({
       success: true,
+      savedAnalysisId,
+      analysisId: savedAnalysisId,
       data: {
         firstName: {
           inputText: sanitizedFirstName,

@@ -4,314 +4,389 @@ import React, { useState } from "react";
 import { Sparkles } from "lucide-react";
 
 /* ═══════════════════════════════════════════════════════════════
-   BRIGHT BLUE-PURPLE-WHITE SOLAR SYSTEM NEBULA SVG ILLUSTRATIONS
+   5 COSMIC BLUE-INDIGO-CYAN SVG ILLUSTRATIONS FOR "WHAT IS NAMENOLOGY"
+   1. Cosmic Structure: Celestial star & planetary orbits
+   2. Cosmic Code: Astrolabe dial with 0-9 numerical energies
+   3. Letter Conversion: Chaldean numerical conversion matrix
+   4. Name Analysis: First Name + Surname integration reticle
+   5. Life Path: Cosmic astrolabe 8-point compass star
    ═══════════════════════════════════════════════════════════════ */
 
-// 1. VIBRATIONAL SCIENCE SVG (Bright)
-const VibrationalScienceSvg = () => (
-  <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-    <svg viewBox="0 0 120 120" className="w-full h-full" fill="none">
-      {/* Outer subtle boundary */}
-      <circle cx="60" cy="60" r="52" stroke="#E0E7FF" strokeWidth="1" />
-
-      {/* Orbiting ring */}
-      <circle
-        cx="60"
-        cy="60"
-        r="42"
-        stroke="#818CF8"
-        strokeWidth="1"
-        strokeDasharray="3 4"
-        opacity="0.5"
-        className="animate-[spin_36s_linear_infinite]"
-        style={{ transformOrigin: "60px 60px" }}
-      />
-
-      {/* Sound wave pattern */}
-      <g strokeLinecap="round">
-        <line x1="30" y1="54" x2="30" y2="66" stroke="#93C5FD" strokeWidth="1.4" />
-        <line x1="38" y1="46" x2="38" y2="74" stroke="#60A5FA" strokeWidth="1.4" />
-        <line x1="46" y1="36" x2="46" y2="84" stroke="#4F46E5" strokeWidth="1.5">
-          <animate attributeName="y1" values="36;32;36" dur="4s" repeatCount="indefinite" />
-          <animate attributeName="y2" values="84;88;84" dur="4s" repeatCount="indefinite" />
-        </line>
-        <line x1="54" y1="28" x2="54" y2="92" stroke="#7C3AED" strokeWidth="1.6">
-          <animate attributeName="y1" values="28;24;28" dur="3.5s" repeatCount="indefinite" />
-          <animate attributeName="y2" values="92;96;92" dur="3.5s" repeatCount="indefinite" />
-        </line>
-        <line x1="60" y1="22" x2="60" y2="98" stroke="#0B5CFF" strokeWidth="2">
-          <animate attributeName="y1" values="22;18;22" dur="4.5s" repeatCount="indefinite" />
-          <animate attributeName="y2" values="98;102;98" dur="4.5s" repeatCount="indefinite" />
-        </line>
-        <line x1="66" y1="28" x2="66" y2="92" stroke="#7C3AED" strokeWidth="1.6">
-          <animate attributeName="y1" values="28;24;28" dur="3.5s" repeatCount="indefinite" />
-          <animate attributeName="y2" values="92;96;92" dur="3.5s" repeatCount="indefinite" />
-        </line>
-        <line x1="74" y1="36" x2="74" y2="84" stroke="#4F46E5" strokeWidth="1.5">
-          <animate attributeName="y1" values="36;32;36" dur="4s" repeatCount="indefinite" />
-          <animate attributeName="y2" values="84;88;84" dur="4s" repeatCount="indefinite" />
-        </line>
-        <line x1="82" y1="46" x2="82" y2="74" stroke="#60A5FA" strokeWidth="1.4" />
-        <line x1="90" y1="54" x2="90" y2="66" stroke="#93C5FD" strokeWidth="1.4" />
-      </g>
-
-      {/* Center node */}
-      <circle cx="60" cy="60" r="5" fill="#FFFFFF" stroke="#0B5CFF" strokeWidth="1.5" />
-      <circle cx="60" cy="60" r="2" fill="#7C3AED" />
-    </svg>
-  </div>
-);
-
-// 2. MATHEMATICAL FORMULA SVG (Bright)
-const MathFormulaRvg = () => (
-  <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-    <svg viewBox="0 0 120 120" className="w-full h-full" fill="none">
-      {/* Outer boundary */}
-      <circle cx="60" cy="60" r="52" stroke="#E0E7FF" strokeWidth="1" />
-
-      {/* Hexagonal matrix */}
-      <polygon
-        points="60,16 100,36 100,76 60,96 20,76 20,36"
-        stroke="#4F46E5"
-        strokeWidth="1.3"
-        strokeLinejoin="round"
-      />
-      <polygon
-        points="60,28 90,44 90,68 60,84 30,68 30,44"
-        stroke="#A5B4FC"
-        strokeWidth="1"
-        strokeDasharray="2 3"
-        strokeLinejoin="round"
-      />
-
-      {/* Scanning radial */}
-      <line x1="60" y1="60" x2="100" y2="36" stroke="#0B5CFF" strokeWidth="1.3" strokeLinecap="round">
-        <animateTransform
-          attributeName="transform"
-          type="rotate"
-          from="0 60 60"
-          to="360 60 60"
-          dur="20s"
-          repeatCount="indefinite"
-        />
-      </line>
-
-      {/* Number nodes at vertices */}
-      <text x="60" y="13" textAnchor="middle" fill="#0B5CFF" fontSize="7" fontFamily="monospace" fontWeight="bold">1</text>
-      <text x="105" y="36" textAnchor="start" fill="#4F46E5" fontSize="7" fontFamily="monospace" fontWeight="bold">9</text>
-      <text x="105" y="80" textAnchor="start" fill="#7C3AED" fontSize="7" fontFamily="monospace" fontWeight="bold">7</text>
-      <text x="60" y="106" textAnchor="middle" fill="#0B5CFF" fontSize="7" fontFamily="monospace" fontWeight="bold">3</text>
-      <text x="10" y="80" textAnchor="start" fill="#7C3AED" fontSize="7" fontFamily="monospace" fontWeight="bold">11</text>
-      <text x="10" y="36" textAnchor="start" fill="#4F46E5" fontSize="7" fontFamily="monospace" fontWeight="bold">22</text>
-
-      {/* Center node */}
-      <circle cx="60" cy="60" r="10" fill="#FFFFFF" stroke="#0B5CFF" strokeWidth="1.3" />
-      <text x="60" y="63" textAnchor="middle" fill="#0B5CFF" fontSize="8" fontFamily="monospace" fontWeight="bold">Σ</text>
-    </svg>
-  </div>
-);
-
-// 3. PHONETIC RESONANCE SVG (Bright)
-const PhoneticResonanceSvg = () => (
-  <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-    <svg viewBox="0 0 120 120" className="w-full h-full" fill="none">
-      {/* Expanding acoustic ripple rings */}
-      <circle cx="60" cy="60" r="50" stroke="#EEF2FF" strokeWidth="1" />
-      <circle cx="60" cy="60" r="42" stroke="#C7D2FE" strokeWidth="0.8" strokeDasharray="2 3" />
-      <circle cx="60" cy="60" r="34" stroke="#818CF8" strokeWidth="1" />
-      <circle cx="60" cy="60" r="26" stroke="#4F46E5" strokeWidth="1" strokeDasharray="3 2" />
-      <circle cx="60" cy="60" r="18" stroke="#0B5CFF" strokeWidth="1.3" />
-
-      {/* Rotating resonance axis */}
-      <g
-        className="animate-[spin_24s_linear_infinite]"
-        style={{ transformOrigin: "60px 60px" }}
-      >
-        <circle cx="60" cy="18" r="3" fill="#7C3AED" />
-        <circle cx="60" cy="18" r="6" stroke="#7C3AED" strokeWidth="0.8" opacity="0.4" />
-      </g>
-
-      {/* Letter-to-frequency conversion markers */}
-      <text x="60" y="47" textAnchor="middle" fill="#0B5CFF" fontSize="8" fontFamily="sans-serif" fontWeight="700">A</text>
-      <text x="60" y="58" textAnchor="middle" fill="#7C3AED" fontSize="5" fontFamily="monospace" fontWeight="600">→ Hz</text>
-
-      {/* Center acoustic core */}
-      <circle cx="60" cy="66" r="6" fill="#FFFFFF" stroke="#0B5CFF" strokeWidth="1.3" />
-      <circle cx="60" cy="66" r="2.5" fill="#7C3AED" />
-    </svg>
-  </div>
-);
-
-// 4. DESTINY MAPPING SVG (Bright)
-const DestinyMappingSvg = () => (
-  <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-    <svg viewBox="0 0 120 120" className="w-full h-full" fill="none">
-      {/* Compass outer ring */}
-      <circle cx="60" cy="60" r="50" stroke="#4F46E5" strokeWidth="1.2" opacity="0.6" />
-      <circle cx="60" cy="60" r="42" stroke="#A5B4FC" strokeWidth="1" strokeDasharray="2 4" />
-
-      {/* Cardinal ticks */}
-      <line x1="60" y1="10" x2="60" y2="18" stroke="#0B5CFF" strokeWidth="1.4" strokeLinecap="round" />
-      <line x1="60" y1="102" x2="60" y2="110" stroke="#4F46E5" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="10" y1="60" x2="18" y2="60" stroke="#4F46E5" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="102" y1="60" x2="110" y2="60" stroke="#4F46E5" strokeWidth="1.2" strokeLinecap="round" />
-
-      {/* North star */}
-      <path d="M 60 6 L 62 12 L 68 12 L 63 15 L 65 21 L 60 17 L 55 21 L 57 15 L 52 12 L 58 12 Z" fill="#0B5CFF" />
-
-      {/* Compass needle with oscillation */}
-      <g>
-        <animateTransform
-          attributeName="transform"
-          type="rotate"
-          values="-4 60 60; 4 60 60; -4 60 60"
-          dur="6s"
-          repeatCount="indefinite"
-        />
-        <polygon points="60,22 64,56 60,62 56,56" stroke="#0B5CFF" strokeWidth="1" fill="#0B5CFF" />
-        <polygon points="60,98 64,64 60,58 56,64" stroke="#7C3AED" strokeWidth="1" fill="#EDE9FE" />
-      </g>
-
-      {/* Pivot center */}
-      <circle cx="60" cy="60" r="5" fill="#FFFFFF" stroke="#0B5CFF" strokeWidth="1.3" />
-      <circle cx="60" cy="60" r="2" fill="#7C3AED" />
-    </svg>
-  </div>
-);
-
-// 5. UNICODE INTELLIGENCE SVG (Bright)
-const UnicodeIntelligenceSvg = () => (
-  <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-    <svg viewBox="0 0 120 120" className="w-full h-full" fill="none">
-      {/* Background datum */}
-      <line x1="12" y1="60" x2="108" y2="60" stroke="#EEF2FF" strokeWidth="1" />
-      <line x1="60" y1="12" x2="60" y2="108" stroke="#EEF2FF" strokeWidth="1" />
-
-      {/* Conversion prism center */}
-      <circle cx="60" cy="60" r="14" stroke="#0B5CFF" strokeWidth="1.3" fill="#FFFFFF" />
-      <circle cx="60" cy="60" r="20" stroke="#C7D2FE" strokeWidth="0.8" strokeDasharray="2 3" />
-      <polygon points="60,52 67,64 53,64" stroke="#7C3AED" strokeWidth="1.3" fill="none" />
-
-      {/* Left: Unicode characters */}
-      <rect x="14" y="28" width="22" height="18" rx="5" stroke="#4F46E5" strokeWidth="1.2" fill="#FFFFFF" />
-      <text x="25" y="40" textAnchor="middle" fill="#0B5CFF" fontSize="8" fontFamily="sans-serif" fontWeight="700">あ</text>
-
-      <rect x="14" y="52" width="22" height="18" rx="5" stroke="#CBD5E1" strokeWidth="1" fill="#FFFFFF" />
-      <text x="25" y="64" textAnchor="middle" fill="#64748B" fontSize="8" fontFamily="sans-serif" fontWeight="600">ก</text>
-
-      <rect x="14" y="76" width="22" height="18" rx="5" stroke="#CBD5E1" strokeWidth="1" fill="#FFFFFF" />
-      <text x="25" y="88" textAnchor="middle" fill="#64748B" fontSize="8" fontFamily="sans-serif" fontWeight="600">A</text>
-
-      {/* Right: Numerical outputs */}
-      <rect x="84" y="28" width="22" height="18" rx="5" stroke="#7C3AED" strokeWidth="1.2" fill="#FFFFFF" />
-      <text x="95" y="40" textAnchor="middle" fill="#7C3AED" fontSize="8" fontFamily="monospace" fontWeight="700">7</text>
-
-      <rect x="84" y="52" width="22" height="18" rx="5" stroke="#C7D2FE" strokeWidth="1" fill="#FFFFFF" />
-      <text x="95" y="64" textAnchor="middle" fill="#4F46E5" fontSize="8" fontFamily="monospace" fontWeight="600">3</text>
-
-      <rect x="84" y="76" width="22" height="18" rx="5" stroke="#C7D2FE" strokeWidth="1" fill="#FFFFFF" />
-      <text x="95" y="88" textAnchor="middle" fill="#4F46E5" fontSize="8" fontFamily="monospace" fontWeight="600">1</text>
-
-      {/* Connection hairlines */}
-      <path d="M 36 37 L 46 56" stroke="#A5B4FC" strokeWidth="0.8" strokeDasharray="2 2" />
-      <path d="M 36 61 L 46 60" stroke="#A5B4FC" strokeWidth="0.8" strokeDasharray="2 2" />
-      <path d="M 36 85 L 46 64" stroke="#A5B4FC" strokeWidth="0.8" strokeDasharray="2 2" />
-      <path d="M 74 56 L 84 37" stroke="#A5B4FC" strokeWidth="0.8" strokeDasharray="2 2" />
-      <path d="M 74 60 L 84 61" stroke="#A5B4FC" strokeWidth="0.8" strokeDasharray="2 2" />
-      <path d="M 74 64 L 84 85" stroke="#A5B4FC" strokeWidth="0.8" strokeDasharray="2 2" />
-
-      {/* Center conversion dot */}
-      <circle cx="60" cy="60" r="2.5" fill="#7C3AED" />
-    </svg>
-  </div>
-);
-
-// 6. ACTIONABLE INSIGHTS SVG (Bright)
-const ActionableInsightsSvg = () => (
-  <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-    <svg viewBox="0 0 120 120" className="w-full h-full" fill="none">
-      {/* Background grid */}
-      <circle cx="60" cy="60" r="50" stroke="#EEF2FF" strokeWidth="1" />
-
-      {/* Ascending data chart */}
-      <polyline
-        points="20,90 35,78 48,82 60,58 72,62 85,40 100,28"
-        stroke="#4F46E5"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <polygon
-        points="20,90 35,78 48,82 60,58 72,62 85,40 100,28 100,96 20,96"
-        fill="url(#bright-insight-grad)"
-        opacity="0.15"
-      />
-
-      {/* Data node points */}
-      <circle cx="35" cy="78" r="2.5" fill="#0B5CFF" />
-      <circle cx="60" cy="58" r="3" fill="#4F46E5" />
-      <circle cx="85" cy="40" r="3" fill="#7C3AED" />
-      <circle cx="100" cy="28" r="4" fill="#FFFFFF" stroke="#0B5CFF" strokeWidth="1.5" />
-
-      {/* Target horizon indicator */}
-      <line x1="20" y1="28" x2="94" y2="28" stroke="#0B5CFF" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.6" />
-
+// 1. COSMIC STRUCTURE SVG
+const CosmicStructureSvg = () => (
+  <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
+    <svg viewBox="0 0 160 160" className="w-full h-full select-none" fill="none">
       <defs>
-        <linearGradient id="bright-insight-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#0B5CFF" />
+        <radialGradient id="wi-core-glow" cx="45%" cy="45%" r="55%">
+          <stop offset="0%" stopColor="#FFFFFF" />
+          <stop offset="30%" stopColor="#BAE6FD" />
+          <stop offset="65%" stopColor="#38BDF8" />
+          <stop offset="100%" stopColor="#0B5CFF" />
+        </radialGradient>
+        <radialGradient id="wi-corona" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.45" />
+          <stop offset="60%" stopColor="#6366F1" stopOpacity="0.15" />
           <stop offset="100%" stopColor="#7C3AED" stopOpacity="0" />
-        </linearGradient>
+        </radialGradient>
       </defs>
+
+      {/* Outer boundary */}
+      <circle cx="80" cy="80" r="68" stroke="#EEF2FF" strokeWidth="1" />
+      <circle cx="80" cy="80" r="64" stroke="#E0E7FF" strokeWidth="0.8" strokeDasharray="3 4" />
+
+      {/* Orbit 1: Inner (Mercury) */}
+      <ellipse cx="80" cy="80" rx="26" ry="22" stroke="#CBD5E1" strokeWidth="0.8" />
+      <circle cx="102" cy="72" r="2.5" fill="#38BDF8" />
+
+      {/* Orbit 2: Venus */}
+      <ellipse cx="80" cy="80" rx="38" ry="33" stroke="#C7D2FE" strokeWidth="0.8" />
+      <circle cx="56" cy="54" r="3.2" fill="#818CF8" />
+
+      {/* Orbit 3: Earth & Moon */}
+      <ellipse cx="80" cy="80" rx="50" ry="44" stroke="#CBD5E1" strokeWidth="0.8" />
+      <circle cx="118" cy="100" r="3.8" fill="#2563EB" />
+      <circle cx="123" cy="103" r="1.2" fill="#CBD5E1" />
+
+      {/* Orbit 4: Mars */}
+      <ellipse cx="80" cy="80" rx="60" ry="54" stroke="#C7D2FE" strokeWidth="0.8" />
+      <circle cx="58" cy="114" r="3" fill="#7C3AED" />
+
+      {/* Rotating outer orbit with Saturn ring */}
+      <g
+        className="animate-[spin_48s_linear_infinite]"
+        style={{ transformOrigin: "80px 80px" }}
+      >
+        <circle cx="80" cy="80" r="62" stroke="#818CF8" strokeWidth="0.8" strokeDasharray="2 4" opacity="0.6" />
+        <circle cx="132" cy="52" r="3.8" fill="#4F46E5" />
+        <ellipse cx="132" cy="52" rx="7.5" ry="2.5" stroke="#A5B4FC" strokeWidth="0.8" fill="none" transform="rotate(-25 132 52)" />
+      </g>
+
+      {/* Corona glow & Central star */}
+      <circle cx="80" cy="80" r="24" fill="url(#wi-corona)" />
+      <circle cx="80" cy="80" r="12" fill="url(#wi-core-glow)" />
+      <circle cx="78" cy="78" r="3.5" fill="#FFFFFF" opacity="0.8" />
+    </svg>
+  </div>
+);
+
+// 2. COSMIC CODE SVG
+const CosmicCodeSvg = () => (
+  <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
+    <svg viewBox="0 0 160 160" className="w-full h-full select-none" fill="none">
+      <defs>
+        <radialGradient id="wi-nexus-glow" cx="40%" cy="40%" r="60%">
+          <stop offset="0%" stopColor="#E0F2FE" />
+          <stop offset="35%" stopColor="#38BDF8" />
+          <stop offset="75%" stopColor="#0B5CFF" />
+          <stop offset="100%" stopColor="#4F46E5" />
+        </radialGradient>
+      </defs>
+
+      {/* Outer dial ring */}
+      <circle cx="80" cy="80" r="68" stroke="#EEF2FF" strokeWidth="1" />
+      <circle
+        cx="80"
+        cy="80"
+        r="62"
+        stroke="#C7D2FE"
+        strokeWidth="0.8"
+        strokeDasharray="1 5"
+        className="animate-[spin_45s_linear_infinite]"
+        style={{ transformOrigin: "80px 80px" }}
+      />
+
+      {/* Radial spokes */}
+      <g opacity="0.3" stroke="#C7D2FE" strokeWidth="0.7" strokeDasharray="2 3">
+        <line x1="80" y1="80" x2="80" y2="38" />
+        <line x1="80" y1="80" x2="110" y2="50" />
+        <line x1="80" y1="80" x2="122" y2="80" />
+        <line x1="80" y1="80" x2="114" y2="112" />
+        <line x1="80" y1="80" x2="80" y2="122" />
+        <line x1="80" y1="80" x2="48" y2="112" />
+        <line x1="80" y1="80" x2="38" y2="80" />
+        <line x1="80" y1="80" x2="50" y2="50" />
+      </g>
+
+      {/* Orbit ring for numbers */}
+      <circle cx="80" cy="80" r="48" stroke="#CBD5E1" strokeWidth="0.8" strokeDasharray="2 3" />
+
+      {/* Celestial energy nodes (0–9) */}
+      <circle cx="80" cy="38" r="4.5" fill="#0B5CFF" />
+      <circle cx="110" cy="50" r="4.2" fill="#38BDF8" />
+      <circle cx="122" cy="80" r="4.5" fill="#4F46E5" />
+      <circle cx="114" cy="112" r="4.2" fill="#7C3AED" />
+      <circle cx="80" cy="122" r="4.5" fill="#06B6D4" />
+      <circle cx="48" cy="112" r="4.5" fill="#2563EB" />
+      <circle cx="38" cy="80" r="4.2" fill="#8B5CF6" />
+      <circle cx="50" cy="50" r="4.5" fill="#6366F1" />
+
+      {/* Numbers around the perimeter */}
+      <text x="80" y="27" textAnchor="middle" fill="#0F172A" fontSize="9" fontFamily="var(--font-sans), sans-serif" fontWeight="bold">1</text>
+      <text x="120" y="42" textAnchor="middle" fill="#0F172A" fontSize="9" fontFamily="var(--font-sans), sans-serif" fontWeight="bold">3</text>
+      <text x="134" y="83" textAnchor="middle" fill="#0F172A" fontSize="9" fontFamily="var(--font-sans), sans-serif" fontWeight="bold">5</text>
+      <text x="120" y="125" textAnchor="middle" fill="#0F172A" fontSize="9" fontFamily="var(--font-sans), sans-serif" fontWeight="bold">7</text>
+      <text x="80" y="138" textAnchor="middle" fill="#0F172A" fontSize="9" fontFamily="var(--font-sans), sans-serif" fontWeight="bold">9</text>
+      <text x="40" y="125" textAnchor="middle" fill="#0F172A" fontSize="9" fontFamily="var(--font-sans), sans-serif" fontWeight="bold">6</text>
+      <text x="26" y="83" textAnchor="middle" fill="#0F172A" fontSize="9" fontFamily="var(--font-sans), sans-serif" fontWeight="bold">8</text>
+      <text x="40" y="42" textAnchor="middle" fill="#0F172A" fontSize="9" fontFamily="var(--font-sans), sans-serif" fontWeight="bold">2</text>
+
+      {/* Central 0 node */}
+      <circle cx="80" cy="80" r="16" fill="#BAE6FD" opacity="0.3" />
+      <circle cx="80" cy="80" r="11" fill="url(#wi-nexus-glow)" stroke="#38BDF8" strokeWidth="1" />
+      <text x="80" y="84" textAnchor="middle" fill="#FFFFFF" fontSize="11" fontFamily="var(--font-sans), sans-serif" fontWeight="bold">
+        0
+      </text>
+    </svg>
+  </div>
+);
+
+// 3. LETTER CONVERSION SVG
+const LetterConversionSvg = () => (
+  <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
+    <svg viewBox="0 0 160 160" className="w-full h-full select-none" fill="none">
+      {/* Outer boundary */}
+      <circle cx="80" cy="80" r="68" stroke="#EEF2FF" strokeWidth="1" />
+
+      {/* Chaldean Mini Matrix Container */}
+      <rect
+        x="30"
+        y="30"
+        width="100"
+        height="100"
+        rx="6"
+        fill="#FFFFFF"
+        stroke="#CBD5E1"
+        strokeWidth="1.2"
+        filter="drop-shadow(0 2px 4px rgba(0, 0, 0, 0.03))"
+      />
+      {/* Header bar */}
+      <path
+        d="M 30 36 Q 30 30 36 30 L 124 30 Q 130 30 130 36 L 130 48 L 30 48 Z"
+        fill="#F8FAFC"
+      />
+
+      {/* Grid lines */}
+      <line x1="46.6" y1="30" x2="46.6" y2="130" stroke="#E2E8F0" strokeWidth="0.8" />
+      <line x1="63.3" y1="30" x2="63.3" y2="130" stroke="#E2E8F0" strokeWidth="0.8" />
+      <line x1="80" y1="30" x2="80" y2="130" stroke="#E2E8F0" strokeWidth="0.8" />
+      <line x1="96.6" y1="30" x2="96.6" y2="130" stroke="#E2E8F0" strokeWidth="0.8" />
+      <line x1="113.3" y1="30" x2="113.3" y2="130" stroke="#E2E8F0" strokeWidth="0.8" />
+
+      <line x1="30" y1="48" x2="130" y2="48" stroke="#E2E8F0" strokeWidth="0.8" />
+      <line x1="30" y1="68" x2="130" y2="68" stroke="#E2E8F0" strokeWidth="0.8" />
+      <line x1="30" y1="88" x2="130" y2="88" stroke="#E2E8F0" strokeWidth="0.8" />
+      <line x1="30" y1="108" x2="130" y2="108" stroke="#E2E8F0" strokeWidth="0.8" />
+
+      {/* Header Numbers: 1 2 3 4 5 6 */}
+      <g fill="#0B5CFF" fontSize="9" fontFamily="var(--font-sans), sans-serif" fontWeight="bold" textAnchor="middle">
+        <text x="38.3" y="42">1</text>
+        <text x="55" y="42">2</text>
+        <text x="71.6" y="42">3</text>
+        <text x="88.3" y="42">4</text>
+        <text x="105" y="42">5</text>
+        <text x="121.6" y="42">6</text>
+      </g>
+
+      {/* Row 1: A B C D E U */}
+      <g fill="#334155" fontSize="8" fontFamily="var(--font-sans), sans-serif" fontWeight="bold" textAnchor="middle">
+        <text x="38.3" y="61">A</text>
+        <text x="55" y="61">B</text>
+        <text x="71.6" y="61">C</text>
+        <text x="88.3" y="61">D</text>
+        <text x="105" y="61">E</text>
+        <text x="121.6" y="61">U</text>
+      </g>
+
+      {/* Row 2: I K G M H V */}
+      <g fill="#334155" fontSize="8" fontFamily="var(--font-sans), sans-serif" fontWeight="bold" textAnchor="middle">
+        <text x="38.3" y="81">I</text>
+        <text x="55" y="81">K</text>
+        <text x="71.6" y="81">G</text>
+        <text x="88.3" y="81">M</text>
+        <text x="105" y="81">H</text>
+        <text x="121.6" y="81">V</text>
+      </g>
+
+      {/* Row 3: J R L T N W */}
+      <g fill="#334155" fontSize="8" fontFamily="var(--font-sans), sans-serif" fontWeight="bold" textAnchor="middle">
+        <text x="38.3" y="101">J</text>
+        <text x="55" y="101">R</text>
+        <text x="71.6" y="101">L</text>
+        <text x="88.3" y="101">T</text>
+        <text x="105" y="101">N</text>
+        <text x="121.6" y="101">W</text>
+      </g>
+
+      {/* Row 4: Q S X */}
+      <g fill="#334155" fontSize="8" fontFamily="var(--font-sans), sans-serif" fontWeight="bold" textAnchor="middle">
+        <text x="38.3" y="121">Q</text>
+        <text x="71.6" y="121">S</text>
+        <text x="105" y="121">X</text>
+      </g>
+    </svg>
+  </div>
+);
+
+// 4. NAME ANALYSIS SVG
+const NameAnalysisSvg = () => (
+  <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
+    <svg viewBox="0 0 160 160" className="w-full h-full select-none" fill="none">
+      {/* Background celestial alignment lines and circle */}
+      <circle cx="80" cy="80" r="68" stroke="#EEF2FF" strokeWidth="0.8" />
+      <circle cx="80" cy="80" r="56" stroke="#C7D2FE" strokeWidth="0.8" strokeDasharray="3 4" />
+
+      {/* Cardinal crosshairs */}
+      <line x1="80" y1="12" x2="80" y2="148" stroke="#E2E8F0" strokeWidth="0.8" strokeDasharray="2 3" />
+      <line x1="12" y1="80" x2="148" y2="80" stroke="#E2E8F0" strokeWidth="0.8" strokeDasharray="2 3" />
+
+      {/* Glowing anchor dots */}
+      <circle cx="80" cy="20" r="2.5" fill="#0B5CFF" />
+      <circle cx="80" cy="140" r="2.5" fill="#7C3AED" />
+
+      {/* Analysis Card */}
+      <rect
+        x="24"
+        y="46"
+        width="112"
+        height="68"
+        rx="6"
+        fill="#FFFFFF"
+        stroke="#CBD5E1"
+        strokeWidth="1.2"
+        filter="drop-shadow(0 4px 6px rgba(0, 0, 0, 0.04))"
+      />
+      <rect
+        x="27"
+        y="49"
+        width="106"
+        height="62"
+        rx="4"
+        fill="none"
+        stroke="#EEF2FF"
+        strokeWidth="0.8"
+      />
+
+      {/* First Name Row */}
+      <text
+        x="80"
+        y="70"
+        textAnchor="middle"
+        fill="#0F172A"
+        fontSize="11"
+        fontFamily="var(--font-sans), sans-serif"
+        fontWeight="bold"
+      >
+        First Name
+      </text>
+
+      {/* Divider line with center energy node */}
+      <line x1="36" y1="80" x2="124" y2="80" stroke="#E2E8F0" strokeWidth="0.8" />
+      <circle cx="80" cy="80" r="2" fill="#0B5CFF" />
+
+      {/* Last Name Row */}
+      <text
+        x="80"
+        y="99"
+        textAnchor="middle"
+        fill="#0F172A"
+        fontSize="11"
+        fontFamily="var(--font-sans), sans-serif"
+        fontWeight="bold"
+      >
+        Last Name
+      </text>
+
+      {/* Corner brackets */}
+      <path d="M 30 54 L 30 51 L 33 51" stroke="#818CF8" strokeWidth="1" fill="none" />
+      <path d="M 130 54 L 130 51 L 127 51" stroke="#818CF8" strokeWidth="1" fill="none" />
+      <path d="M 30 106 L 30 109 L 33 109" stroke="#818CF8" strokeWidth="1" fill="none" />
+      <path d="M 130 106 L 130 109 L 127 109" stroke="#818CF8" strokeWidth="1" fill="none" />
+    </svg>
+  </div>
+);
+
+// 5. LIFE PATH SVG
+const LifePathSvg = () => (
+  <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
+    <svg viewBox="0 0 160 160" className="w-full h-full select-none" fill="none">
+      <defs>
+        <radialGradient id="wi-starburst" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FFFFFF" />
+          <stop offset="25%" stopColor="#BAE6FD" />
+          <stop offset="55%" stopColor="#38BDF8" />
+          <stop offset="85%" stopColor="#0B5CFF" />
+          <stop offset="100%" stopColor="#4F46E5" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+
+      {/* Concentric astrolabe rings */}
+      <circle cx="80" cy="80" r="68" stroke="#EEF2FF" strokeWidth="1" />
+      <circle cx="80" cy="80" r="62" stroke="#C7D2FE" strokeWidth="0.8" opacity="0.8" />
+      <circle cx="80" cy="80" r="54" stroke="#818CF8" strokeWidth="0.8" strokeDasharray="3 4" opacity="0.7" />
+      <circle cx="80" cy="80" r="44" stroke="#4F46E5" strokeWidth="1" opacity="0.85" />
+      <circle cx="80" cy="80" r="32" stroke="#0B5CFF" strokeWidth="0.9" strokeDasharray="2 3" />
+
+      {/* 8-point geometric compass star rays */}
+      <polygon points="80,18 84,72 80,80 76,72" fill="#38BDF8" opacity="0.9" />
+      <polygon points="80,142 84,88 80,80 76,88" fill="#0B5CFF" opacity="0.9" />
+      <polygon points="18,80 72,76 80,80 72,84" fill="#38BDF8" opacity="0.9" />
+      <polygon points="142,80 88,76 80,80 88,84" fill="#0B5CFF" opacity="0.9" />
+      <polygon points="36,36 74,75 80,80 75,74" fill="#6366F1" opacity="0.8" />
+      <polygon points="124,124 86,85 80,80 85,86" fill="#7C3AED" opacity="0.8" />
+      <polygon points="124,36 85,74 80,80 86,75" fill="#6366F1" opacity="0.8" />
+      <polygon points="36,124 75,86 80,80 74,85" fill="#7C3AED" opacity="0.8" />
+
+      {/* Center glowing radiant starburst core */}
+      <circle cx="80" cy="80" r="22" fill="url(#wi-starburst)" />
+      <circle cx="80" cy="80" r="6" fill="#FFFFFF" stroke="#38BDF8" strokeWidth="1" />
+      <circle cx="80" cy="80" r="2.5" fill="#0B5CFF" />
     </svg>
   </div>
 );
 
 /* ═══════════════════════════════════════════════════════════════
-   6 SUB-HEADS FOR "WHAT IS NAMENOLOGY"
+   5 ELEMENTS AS EXPLICITLY REQUESTED BY USER
    ═══════════════════════════════════════════════════════════════ */
-const FEATURES = [
+const WHAT_IS_ITEMS = [
   {
-    id: "vibrational-science",
-    title: "Vibrational Science",
+    stepNumber: "01",
+    id: "cosmic-structure",
+    title: "1. Cosmic Structure",
     description:
-      "Every name carries a unique acoustic frequency. Namenology decodes the vibrational signature of your official name to reveal the energetic blueprint that shapes your life path.",
-    svg: <VibrationalScienceSvg />,
+      "Cosmic Structure refers to the existence and movement of stars and celestial bodies throughout the Milky Way galaxy, forming the foundation of the Namenology system.",
+    svg: <CosmicStructureSvg />,
   },
   {
-    id: "mathematical-precision",
-    title: "Mathematical Precision",
+    stepNumber: "02",
+    id: "cosmic-code",
+    title: "2. Cosmic Code",
     description:
-      "Powered by deterministic algorithms and a closed library of 100 archetypes. Every calculation follows rigorous mathematical constants rooted in ancient Chaldean harmonics.",
-    svg: <MathFormulaRvg />,
+      "Cosmic Code represents cosmic influences through numbers 0–9, with each number associated with specific celestial energies and characteristics.",
+    svg: <CosmicCodeSvg />,
   },
   {
-    id: "phonetic-resonance",
-    title: "Phonetic Resonance",
+    stepNumber: "03",
+    id: "letter-conversion",
+    title: "3. Letter Conversion",
     description:
-      "Each letter in your name is mapped to a specific frequency weight. We analyze the acoustic harmony between vowels, consonants, and their combined phonetic resonance.",
-    svg: <PhoneticResonanceSvg />,
+      "Each letter in your name and surname is converted into a numerical value from 0–9, creating a unique numerical pattern.",
+    svg: <LetterConversionSvg />,
   },
   {
-    id: "destiny-mapping",
-    title: "Destiny Mapping",
+    stepNumber: "04",
+    id: "name-analysis",
+    title: "4. Name Analysis",
     description:
-      "Translate compound sums and root vibrations into actionable life vectors — revealing career resonance, innate strengths, health insights, and holistic trajectory alignment.",
-    svg: <DestinyMappingSvg />,
+      "The numbers from your name and surname are combined and interpreted according to their meanings and numerical energies.",
+    svg: <NameAnalysisSvg />,
   },
   {
-    id: "unicode-intelligence",
-    title: "Unicode Intelligence",
+    stepNumber: "05",
+    id: "life-path",
+    title: "5. Life Path",
     description:
-      "Global character support via Unicode NFC normalization. Whether your name is in English, Thai, Japanese, Arabic, or any script — the same deterministic engine applies universally.",
-    svg: <UnicodeIntelligenceSvg />,
-  },
-  {
-    id: "actionable-insights",
-    title: "Actionable Insights",
-    description:
-      "No vague fortune-telling. Receive structured, data-driven dossiers with clear metrics on personality, career paths, relationships, and life optimization strategies.",
-    svg: <ActionableInsightsSvg />,
+      "The resulting numbers are combined into a number from 1–100, which forms the basis for exploring your Life Path.",
+    svg: <LifePathSvg />,
   },
 ];
 
@@ -321,15 +396,15 @@ export const WhatIsNamenologySection: React.FC = () => {
   return (
     <section
       id="what-is-namenology"
-      className="py-20 sm:py-28 bg-[#F8FAFF] relative overflow-hidden text-slate-900 border-t border-indigo-50"
+      className="py-16 sm:py-24 bg-white relative overflow-hidden text-slate-900 border-t border-slate-100"
     >
       {/* Background ethereal bright glowing nebulae */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-purple-500/[0.04] rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-500/[0.04] rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] bg-purple-500/[0.04] rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-[450px] h-[450px] bg-blue-500/[0.04] rounded-full blur-[100px] pointer-events-none" />
 
       {/* Subtle orbital lines decoration */}
       <svg
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] pointer-events-none select-none opacity-40"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] pointer-events-none select-none opacity-30"
         viewBox="0 0 700 700"
         fill="none"
       >
@@ -338,47 +413,52 @@ export const WhatIsNamenologySection: React.FC = () => {
         <circle cx="350" cy="350" r="180" stroke="#DDD6FE" strokeWidth="0.6" />
       </svg>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* ================================================================= */}
         {/* SECTION HEADER                                                     */}
         {/* ================================================================= */}
-        <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
+        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-purple-200/80 bg-purple-50 text-purple-700 text-xs font-semibold mb-3 shadow-2xs">
             <Sparkles className="w-3.5 h-3.5 text-blue-600" />
             <span>The Science of Name</span>
           </div>
 
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight font-outfit uppercase leading-tight text-slate-900">
-            WHAT IS{" "}
-            <span className="gradient-text-cosmic-bright">
-              NAMENOLOGY
-            </span>
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight font-outfit uppercase leading-tight text-slate-900">
+            WHAT IS <span className="gradient-text-cosmic-bright">NAMENOLOGY</span>
           </h2>
 
-          <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
-            Namenology is the modern science of name analysis — a systematic approach that decodes
-            the vibrational energy, mathematical harmonics, and phonetic intelligence embedded within
-            every human name.
+          <p className="mt-4 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+            Namenology is a distinctive, proprietary numerology system developed by integrating concepts from{" "}
+            <strong className="text-slate-800 font-semibold">
+              cosmology, astronomy, astrology, horoscopy, and numerology
+            </strong>{" "}
+            into one unique framework for name analysis.
           </p>
         </div>
 
         {/* ================================================================= */}
-        {/* 6 FEATURE CARDS GRID (3×2)                                        */}
+        {/* 5 FEATURE CARDS (3 on Row 1, 2 Centered on Row 2)                */}
         {/* ================================================================= */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
-          {FEATURES.map((feature) => {
-            const isHovered = hoveredCard === feature.id;
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-5">
+          {WHAT_IS_ITEMS.map((item, index) => {
+            const isHovered = hoveredCard === item.id;
+            const gridColClass =
+              index === 3
+                ? "md:col-span-2 md:col-start-2"
+                : "md:col-span-2";
+
             return (
               <div
-                key={feature.id}
-                id={`feature-${feature.id}`}
-                onMouseEnter={() => setHoveredCard(feature.id)}
+                key={item.id}
+                id={`what-is-${item.id}`}
+                onMouseEnter={() => setHoveredCard(item.id)}
                 onMouseLeave={() => setHoveredCard(null)}
                 className={`
-                  relative rounded-2xl p-7 sm:p-8
-                  transition-all duration-300 flex flex-col
+                  relative rounded-2xl p-6
+                  transition-all duration-300 flex flex-col justify-between
                   border bg-white
                   hover:-translate-y-1.5
+                  ${gridColClass}
                   ${
                     isHovered
                       ? "border-purple-300 shadow-xl shadow-indigo-500/10"
@@ -386,33 +466,57 @@ export const WhatIsNamenologySection: React.FC = () => {
                   }
                 `}
               >
-                {/* SVG Graphic */}
-                <div className="mb-6 flex items-center justify-center">
-                  {feature.svg}
+                <div>
+                  {/* Step Number Badge */}
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[10px] font-mono font-bold text-purple-700 bg-purple-50 border border-purple-200/70 px-2 py-0.5 rounded">
+                      {item.stepNumber}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                      Foundation
+                    </span>
+                  </div>
+
+                  {/* SVG Graphic */}
+                  <div className="my-2 flex items-center justify-center">
+                    {item.svg}
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="font-outfit font-bold text-base text-slate-900 text-center mt-3 mb-2 tracking-tight group-hover:text-blue-600 transition-colors">
+                    {item.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-xs text-slate-600 leading-relaxed text-center font-normal">
+                    {item.description}
+                  </p>
                 </div>
 
-                {/* Sub-head Title */}
-                <h3 className="font-outfit font-bold text-xl text-slate-900 text-center mb-2.5 tracking-tight group-hover:text-blue-600 transition-colors">
-                  {feature.title}
-                </h3>
-
-                {/* Sub-head Description */}
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed text-center flex-1">
-                  {feature.description}
-                </p>
-
                 {/* Bottom subtle accent line */}
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-center">
+                <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-center">
                   <div
                     className={`
                       h-0.5 rounded-full transition-all duration-500
-                      ${isHovered ? "w-16 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600" : "w-8 bg-slate-200"}
+                      ${isHovered ? "w-12 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600" : "w-6 bg-slate-200"}
                     `}
                   />
                 </div>
               </div>
             );
           })}
+        </div>
+
+        {/* ================================================================= */}
+        {/* FOOTER SUMMARY BOX                                                */}
+        {/* ================================================================= */}
+        <div className="mt-12 sm:mt-14 p-6 sm:p-7 rounded-2xl bg-[#F8FAFF] border border-indigo-100 shadow-sm text-center max-w-3xl mx-auto">
+          <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
+            Your name and surname carry a{" "}
+            <strong className="text-slate-900 font-semibold">unique numerical pattern</strong>, with each letter connected
+            to the Cosmic Code and the energies represented by the stars. Together, these numbers form a unique energy pattern that Namenology uses to explore your{" "}
+            <span className="font-semibold text-blue-600">Personality, Destiny, and Well-being</span>.
+          </p>
         </div>
       </div>
     </section>

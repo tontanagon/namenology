@@ -154,20 +154,17 @@ export default function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            ELEMENT 3:
-            WHAT IS NAMENOLOGY (6 SUB-HEADS)
-           ═══════════════════════════════════════════════════ */}
-        <WhatIsNamenologySection />
-
-        {/* ═══════════════════════════════════════════════════
-            ELEMENT 4:
-            HOW NAMENOLOGY WORKS (5 SUB-HEADS & FOOTER ELEMENT DESCRIPTION)
+            HOW NAMENOLOGY WORKS
            ═══════════════════════════════════════════════════ */}
         <HowItWorksSection />
 
         {/* ═══════════════════════════════════════════════════
-            ELEMENT 5:
-            WHY IS NAMENOLOGY DIFFERENT (4 SUB-HEADS & TOP ELEMENT DESCRIPTION)
+            WHAT IS NAMENOLOGY
+           ═══════════════════════════════════════════════════ */}
+        <WhatIsNamenologySection />
+
+        {/* ═══════════════════════════════════════════════════
+            WHY NAMENOLOGY IS DIFFERENT
            ═══════════════════════════════════════════════════ */}
         <WhatMakesUsDifferentSection />
       </main>

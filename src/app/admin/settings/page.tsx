@@ -13,6 +13,9 @@ import {
   Cpu,
   History,
   CheckCircle2,
+  Mail,
+  Send,
+  ExternalLink,
 } from "lucide-react";
 
 interface AnalysisConfigItem {
@@ -39,18 +42,34 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  // Admin Email Delivery State
+  const [smtpInfo, setSmtpInfo] = useState<{ configured: boolean; host: string; port: string; from: string; mode: string } | null>(null);
+  const [testEmail, setTestEmail] = useState("");
+  const [testTemplate, setTestTemplate] = useState<"TEST" | "WELCOME" | "SECURITY" | "ANALYSIS">("TEST");
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailResult, setEmailResult] = useState<{ type: "success" | "error"; text: string; previewUrl?: string } | null>(null);
+
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/settings");
-      if (res.ok) {
-        const data = await res.json();
+      const [settingsRes, emailStatusRes] = await Promise.all([
+        fetch("/api/admin/settings"),
+        fetch("/api/admin/email/test"),
+      ]);
+
+      if (settingsRes.ok) {
+        const data = await settingsRes.json();
         setActiveConfig(data.activeConfig);
         setAllConfigs(data.allConfigs || []);
         if (data.activeConfig) {
           setDecimalPrecision(data.activeConfig.decimalPrecision);
           setMissingFieldPolicy(data.activeConfig.missingFieldPolicy);
         }
+      }
+
+      if (emailStatusRes.ok) {
+        const emailData = await emailStatusRes.json();
+        setSmtpInfo(emailData);
       }
     } catch {
       // Ignored
@@ -62,6 +81,43 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     fetchSettings();
   }, []);
+
+  const handleSendTestEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testEmail.trim()) {
+      setEmailResult({ type: "error", text: "Please enter a valid destination email address." });
+      return;
+    }
+
+    setSendingEmail(true);
+    setEmailResult(null);
+
+    try {
+      const res = await fetch("/api/admin/email/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          targetEmail: testEmail.trim(),
+          templateType: testTemplate,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setEmailResult({ type: "error", text: data.error || "Failed to send test email." });
+      } else {
+        setEmailResult({
+          type: "success",
+          text: data.message,
+          previewUrl: data.previewUrl,
+        });
+      }
+    } catch {
+      setEmailResult({ type: "error", text: "Network connection error while sending test email." });
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   const handleBumpVersion = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -279,6 +335,125 @@ export default function AdminSettingsPage() {
             </tbody>
           </table>
         </div>
+      </Card>
+
+      {/* Email Delivery & SMTP Service Test Card (Moved to Admin per user request) */}
+      <Card glass className="p-6 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+              <Mail className="w-4 h-4 text-brand-600" />
+              <span>Email Delivery &amp; SMTP Test System (ระบบทดสอบการส่งอีเมล)</span>
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Verify mailer configuration, test deliverability, and preview transactional email templates.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant={smtpInfo?.configured ? "brand" : "gold"}>
+              {smtpInfo?.mode || "Ethereal / Sandbox"}
+            </Badge>
+          </div>
+        </div>
+
+        {/* Transporter Configuration Telemetry */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div className="p-3 rounded-xl bg-muted/40 border border-border">
+            <span className="text-[11px] font-semibold text-muted-foreground block">Active SMTP Host</span>
+            <span className="font-mono font-bold text-foreground mt-0.5 block truncate">
+              {smtpInfo?.host || "Local Sandbox"}
+            </span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-muted/40 border border-border">
+            <span className="text-[11px] font-semibold text-muted-foreground block">Connection Port</span>
+            <span className="font-mono font-bold text-foreground mt-0.5 block">
+              Port {smtpInfo?.port || "587"}
+            </span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-muted/40 border border-border">
+            <span className="text-[11px] font-semibold text-muted-foreground block">Sender Identity (FROM)</span>
+            <span className="font-mono font-bold text-foreground mt-0.5 block truncate">
+              {smtpInfo?.from || '"NAMENOLOGY" <notifications@namenology.com>'}
+            </span>
+          </div>
+        </div>
+
+        {emailResult && (
+          <div
+            className={`p-3.5 rounded-xl border text-xs flex flex-col gap-1.5 ${
+              emailResult.type === "success"
+                ? "bg-blue-50/80 border-blue-200 text-blue-900"
+                : "bg-rose-50 border-rose-200 text-rose-800"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {emailResult.type === "success" ? (
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-blue-600" />
+              ) : (
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+              )}
+              <span className="font-semibold">{emailResult.text}</span>
+            </div>
+            {emailResult.previewUrl && (
+              <a
+                href={emailResult.previewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] text-blue-600 hover:underline font-bold inline-flex items-center gap-1 ml-6"
+              >
+                <span>Open Ethereal Email Preview (เปิดดูตัวอย่างอีเมลจริง)</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+          </div>
+        )}
+
+        <form onSubmit={handleSendTestEmail} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-foreground mb-1">
+                Recipient Email Address (อีเมลปลายทางที่ต้องการทดสอบ)
+              </label>
+              <Input
+                type="email"
+                placeholder="e.g. admin@namenology.com"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-foreground mb-1">
+                Email Template (ประเภทเทมเพลตอีเมล)
+              </label>
+              <select
+                value={testTemplate}
+                onChange={(e) => setTestTemplate(e.target.value as any)}
+                className="w-full h-9 px-3 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-1 focus:ring-brand-500"
+              >
+                <option value="TEST">1. Verification / System Test (อีเมลทดสอบระบบ)</option>
+                <option value="WELCOME">2. Welcome New Member (ต้อนรับสมาชิกใหม่)</option>
+                <option value="SECURITY">3. Security Alert (แจ้งเตือนรหัสผ่านถูกเปลี่ยน)</option>
+                <option value="ANALYSIS">4. Analysis Report Ready (รายงานวิเคราะห์ชื่อเสร็จสิ้น)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end pt-2">
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={sendingEmail}
+              className="inline-flex items-center gap-1.5"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>{sendingEmail ? "Dispatching Email..." : "Send Test Email (ส่งอีเมลทดสอบ)"}</span>
+            </Button>
+          </div>
+        </form>
       </Card>
     </div>
   );

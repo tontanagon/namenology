@@ -20,6 +20,8 @@ import {
   Award,
   Clock,
   CheckCircle2,
+  Settings,
+  AlertCircle,
 } from "lucide-react";
 import { CreditType } from "@prisma/client";
 
@@ -32,7 +34,7 @@ export default async function DashboardPage() {
     redirect("/signin?callbackUrl=/dashboard");
   }
 
-  const [entitlements, historyData, serviceOrders] = await Promise.all([
+  const [entitlements, historyData, serviceOrders, dbUser] = await Promise.all([
     entitlementService.getUserEntitlements(user.id),
     analysisService.getUserHistory(user.id, { limit: 5 }),
     prisma.serviceOrder.findMany({
@@ -48,6 +50,10 @@ export default async function DashboardPage() {
       orderBy: { createdAt: "desc" },
       take: 3,
     }),
+    prisma.user.findUnique({
+      where: { id: user.id },
+      select: { emailVerified: true },
+    }),
   ]);
 
   const { balances } = entitlements;
@@ -56,7 +62,28 @@ export default async function DashboardPage() {
     <div className="min-h-screen flex flex-col bg-white text-foreground">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-10">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
+        {/* Email Verification Banner */}
+        {!dbUser?.emailVerified && (
+          <div className="bg-amber-50/90 border border-amber-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900 shadow-sm animate-in fade-in duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 text-amber-600">
+                <AlertCircle className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="font-bold text-slate-900">Your email address is pending verification</p>
+                <p className="text-slate-600 mt-0.5">Please confirm your email to ensure uninterrupted access to your calculations and security notices.</p>
+              </div>
+            </div>
+            <Link href={`/verify-email?email=${encodeURIComponent(user.email)}`} className="shrink-0">
+              <Button size="sm" variant="outline" className="border-amber-300 bg-white hover:bg-amber-50 text-amber-800 text-xs font-semibold h-8">
+                <span>Verify Email</span>
+                <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </Link>
+          </div>
+        )}
+
         {/* Dashboard Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -72,6 +99,12 @@ export default async function DashboardPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <Link href="/settings">
+              <Button variant="outline" size="sm">
+                <Settings className="w-4 h-4 mr-1.5" />
+                <span>Account Settings</span>
+              </Button>
+            </Link>
             <Link href="/analysis-history">
               <Button variant="outline" size="sm">
                 <History className="w-4 h-4 mr-1.5" />

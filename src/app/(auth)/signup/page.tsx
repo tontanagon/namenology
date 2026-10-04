@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, AlertCircle, ArrowRight } from "lucide-react";
+import { ShieldCheck, AlertCircle, ArrowRight, Bell, Check, Mail } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
@@ -15,6 +15,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [receiveNotifications, setReceiveNotifications] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -38,7 +39,7 @@ export default function SignupPage() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, receiveNotifications }),
       });
 
       const data = await res.json();
@@ -140,11 +141,38 @@ export default function SignupPage() {
               autoComplete="new-password"
             />
 
-            <div className="p-3 rounded-xl bg-brand-50/60 border border-brand-200/50 flex items-start gap-2 text-xs text-brand-700">
+            {/* <div className="p-3 rounded-xl bg-brand-50/60 border border-brand-200/50 flex items-start gap-2 text-xs text-brand-700">
               <ShieldCheck className="w-4 h-4 text-brand-500 shrink-0 mt-0.5" />
               <span>
                 Data Security Guarantee: Your personal identity and analyzed names are processed securely and never shared with third parties.
               </span>
+            </div> */}
+
+            {/* Notification Opt-in Checkbox */}
+            <div
+              onClick={() => setReceiveNotifications(!receiveNotifications)}
+              className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-start gap-3 select-none ${receiveNotifications
+                ? "bg-blue-50/70 border-blue-200 text-blue-950"
+                : "bg-slate-50/60 border-slate-200 text-slate-600 hover:border-slate-300"
+                }`}
+            >
+              <div
+                className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 transition-colors border ${receiveNotifications
+                  ? "bg-blue-600 border-blue-600 text-white"
+                  : "bg-white border-slate-300"
+                  }`}
+              >
+                {receiveNotifications && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+              </div>
+              <div className="text-xs space-y-0.5">
+                <div className="font-semibold text-slate-800 flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span>Receive Email Notifications</span>
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Receive analysis reports, astrological updates, and account alerts directly in your inbox.
+                </p>
+              </div>
             </div>
 
             <Button

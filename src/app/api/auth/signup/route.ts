@@ -13,6 +13,8 @@ import { enforceRateLimit, createRateLimitResponse, getClientIp } from "@/lib/se
 import { sanitizeString } from "@/lib/security/sanitize";
 import { logger } from "@/lib/logger";
 import { Role } from "@prisma/client";
+import { emailService } from "@/services/email.service";
+import { verificationService } from "@/services/verification.service";
 
 const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -21,6 +23,7 @@ const signupSchema = z.object({
     .string()
     .min(8, "Password must be at least 8 characters")
     .max(100, "Password must not exceed 100 characters"),
+  receiveNotifications: z.boolean().optional().default(true),
 });
 
 export async function POST(req: NextRequest) {
@@ -53,7 +56,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, email, password } = validatedData.data;
+    const { name, email, password, receiveNotifications } = validatedData.data;
     const sanitizedName = sanitizeString(name);
     const normalizedEmail = sanitizeString(email).toLowerCase();
 
@@ -78,7 +81,7 @@ export async function POST(req: NextRequest) {
 
     const userAgent = req.headers.get("user-agent") || undefined;
 
-    // Create user (Analysis credits start at 0; initial 2 analyses are provided as free trials tracked via client/state)
+    // Create user with explicit notification preferences
     const newUser = await prisma.user.create({
       data: {
         name: sanitizedName,
@@ -86,8 +89,37 @@ export async function POST(req: NextRequest) {
         passwordHash,
         role: Role.USER,
         isActive: true,
+        receiveNotifications: Boolean(receiveNotifications),
+        notifyEmail: Boolean(receiveNotifications),
+        notifyMarketing: Boolean(receiveNotifications),
+        notifySecurity: true,
       },
     });
+
+    // Create initial welcome notification
+    await prisma.notification.create({
+      data: {
+        userId: newUser.id,
+        title: "ยินดีต้อนรับสู่ NAMENOLOGY!",
+        message: "บัญชีของคุณพร้อมใช้งานแล้ว เริ่มต้นวิเคราะห์ศาสตร์แห่งชื่อของคุณได้ทันที พร้อมรับสิทธิ์ทดลองวิเคราะห์ฟรี",
+        type: "SUCCESS",
+        link: "/analyze",
+      },
+    });
+
+    // Dispatch email verification link
+    verificationService
+      .sendVerificationEmailForUser(newUser.id, newUser.email, newUser.name)
+      .catch((err) => {
+        logger.warn("AUTH", "Failed to dispatch verification email", { error: String(err) });
+      });
+
+    // Send welcome email if user opted into email notifications
+    if (receiveNotifications) {
+      emailService.sendWelcomeEmail(newUser.email, newUser.name).catch((err) => {
+        logger.warn("AUTH", "Failed to dispatch welcome email", { error: String(err) });
+      });
+    }
 
     // Create session in database
     const { session, token } = await createSession(newUser.id, {

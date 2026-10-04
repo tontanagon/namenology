@@ -10,6 +10,7 @@ import {
   LogOut,
   ShieldAlert,
   ArrowRight,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -170,11 +171,20 @@ export const Navbar: React.FC<NavbarProps> = ({ variant = "default" }) => {
           {loading ? (
             <div className={`w-28 h-9 animate-pulse rounded-xl ${isCosmic ? "bg-white/10" : "bg-slate-100"}`} />
           ) : user ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Link href="/dashboard">
                 <Button variant="outline" size="sm" className={isCosmic ? "border-white/20 text-white" : "border-slate-200 text-slate-800"}>
                   <User className="w-4 h-4 text-blue-600 mr-1.5" />
                   {user.name}
+                </Button>
+              </Link>
+              <Link href="/settings" title="Account Settings">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={isCosmic ? "border-white/20 text-white hover:bg-white/10" : "border-slate-200 text-slate-700 hover:text-blue-600 hover:bg-blue-50/60"}
+                >
+                  <Settings className="w-4 h-4" />
                 </Button>
               </Link>
               <Button
@@ -182,6 +192,7 @@ export const Navbar: React.FC<NavbarProps> = ({ variant = "default" }) => {
                 size="sm"
                 onClick={handleSignout}
                 className={isCosmic ? "text-slate-400 hover:text-rose-400" : "text-slate-500 hover:text-rose-600"}
+                title="Sign Out"
               >
                 <LogOut className="w-4 h-4" />
               </Button>
@@ -253,20 +264,6 @@ export const Navbar: React.FC<NavbarProps> = ({ variant = "default" }) => {
                 </Link>
               );
             })}
-            {!user && (
-              <Link
-                href="/signin"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`text-sm font-medium py-2 px-2 rounded-lg transition-colors flex items-center justify-between border-t mt-1 ${
-                  isCosmic
-                    ? "border-white/10 text-slate-200 hover:text-cyan-300"
-                    : "border-slate-100 text-slate-700 hover:text-blue-600"
-                }`}
-              >
-                <span>7. Sign Up / Sign In</span>
-                <span className="text-xs font-semibold text-blue-600">&rarr;</span>
-              </Link>
-            )}
             {user?.role === "ADMIN" && (
               <Link
                 href="/admin/dashboard"
@@ -283,13 +280,27 @@ export const Navbar: React.FC<NavbarProps> = ({ variant = "default" }) => {
                 <div className={`text-xs mb-1 ${isCosmic ? "text-slate-400" : "text-slate-500"}`}>
                   Signed in as <strong className={isCosmic ? "text-white" : "text-slate-800"}>{user.email}</strong>
                 </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" size="sm" className="w-full justify-center text-xs border-slate-200">
+                      <User className="w-3.5 h-3.5 mr-1 text-blue-600" />
+                      Dashboard
+                    </Button>
+                  </Link>
+                  <Link href="/settings" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" size="sm" className="w-full justify-center text-xs border-slate-200">
+                      <Settings className="w-3.5 h-3.5 mr-1 text-slate-600" />
+                      Settings
+                    </Button>
+                  </Link>
+                </div>
                 <Button
                   variant="outline"
                   onClick={() => {
                     setMobileMenuOpen(false);
                     handleSignout();
                   }}
-                  className="w-full justify-center text-rose-600 border-slate-200"
+                  className="w-full justify-center text-rose-600 border-slate-200 text-xs mt-1"
                 >
                   <LogOut className="w-4 h-4 mr-1.5" />
                   Sign Out

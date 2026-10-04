@@ -147,12 +147,6 @@ export default function AnalyzePage() {
         setIsUnlocked(false);
         const newCount = currentCount + 1;
         setFreeAnalysesCount(newCount);
-        if (typeof window !== "undefined") {
-          localStorage.setItem(
-            "namenology_free_analyses_count",
-            newCount.toString()
-          );
-        }
       } else {
         try {
           const authRes = await fetch("/api/analysis", {
@@ -217,13 +211,14 @@ export default function AnalyzePage() {
         }
         if (typeof data.analysesCount === "number") {
           count = data.analysesCount;
-          setFreeAnalysesCount((prev) => {
-            const next = Math.max(prev, count);
-            if (typeof window !== "undefined") {
-              localStorage.setItem("namenology_free_analyses_count", next.toString());
+          setFreeAnalysesCount(count);
+          if (typeof window !== "undefined") {
+            // Delete legacy shared un-scoped key
+            localStorage.removeItem("namenology_free_analyses_count");
+            if (data.user?.id) {
+              localStorage.setItem(`namenology_free_analyses_${data.user.id}`, count.toString());
             }
-            return next;
-          });
+          }
         }
       }
     } catch {
@@ -233,25 +228,21 @@ export default function AnalyzePage() {
     return { count, creds };
   };
 
-  // Initialize free analyses count from localStorage and check query params safely
+  // Initialize free analyses count from server and check query params safely
   useEffect(() => {
     let isMounted = true;
 
     async function initPage() {
-      let localTrialCount = 0;
+      // Clean up legacy shared key that leaked across accounts
       if (typeof window !== "undefined") {
-        const stored = localStorage.getItem("namenology_free_analyses_count");
-        if (stored !== null) {
-          localTrialCount = parseInt(stored, 10) || 0;
-          setFreeAnalysesCount(localTrialCount);
-        }
+        localStorage.removeItem("namenology_free_analyses_count");
       }
 
       // Fetch authoritative count & credits from server first
       const { count: serverCount, creds: serverCredits } = await fetchCredits();
       if (!isMounted) return;
 
-      const effectiveCount = Math.max(localTrialCount, serverCount);
+      const effectiveCount = serverCount;
 
       if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search);

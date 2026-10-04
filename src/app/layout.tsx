@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   authors: [{ name: "NAMENOLOGY" }],
 };
 
+import { TopProgressBar } from "@/components/layout/TopProgressBar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className="min-h-screen flex flex-col font-sans bg-white text-foreground antialiased">
+        <TopProgressBar />
         {children}
       </body>
     </html>

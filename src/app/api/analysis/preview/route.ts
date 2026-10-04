@@ -28,12 +28,12 @@ export async function POST(req: NextRequest) {
     const cookieTrials = parseInt(req.cookies.get("namenology_free_trials")?.value || "0", 10);
 
     if (user) {
-      // For authenticated user: Check completed analyses count and credit ledger
+      // For authenticated user: Check completed analyses count and credit ledger strictly for this user
       const analysesCount = await prisma.analysis.count({
         where: { userId: user.id },
       });
 
-      const effectiveFreeUsed = Math.max(analysesCount, cookieTrials);
+      const effectiveFreeUsed = analysesCount;
 
       const ledgerAggregates = await prisma.creditLedger.groupBy({
         by: ["creditType"],
@@ -252,13 +252,17 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Increment free trial cookie tracker
-    response.cookies.set("namenology_free_trials", (cookieTrials + 1).toString(), {
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 365,
-    });
+    // Manage trial cookie: clear for authenticated users, increment for guests
+    if (user) {
+      response.cookies.delete("namenology_free_trials");
+    } else {
+      response.cookies.set("namenology_free_trials", (cookieTrials + 1).toString(), {
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 365,
+      });
+    }
 
     return response;
   } catch (error) {

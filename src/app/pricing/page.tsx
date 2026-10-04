@@ -17,6 +17,7 @@ import {
   Layers,
   Zap,
   Star,
+  Sparkles,
 } from "lucide-react";
 
 interface ProductEntitlement {
@@ -142,6 +143,7 @@ export default function PricingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {analysisPackages.map((pkg) => {
               const isPopular = pkg.code === "PKG_2_SETS";
+              const isBestValue = pkg.code === "PKG_5_SETS";
               const isFree = pkg.code === "FREE_TIER";
               const firstNames =
                 pkg.entitlements.find((e) => e.creditType === "FIRST_NAME")?.quantity ?? 0;
@@ -154,16 +156,28 @@ export default function PricingPage() {
                 <Card
                   key={pkg.id}
                   variant="science"
-                  glow={isPopular ? "blue" : isFree ? "none" : "indigo"}
+                  glow={isPopular ? "blue" : isBestValue ? "violet" : isFree ? "none" : "indigo"}
                   className={`p-7 flex flex-col justify-between relative ${
-                    isPopular ? "border-brand-300 shadow-glow-blue" : ""
+                    isPopular
+                      ? "border-brand-300 shadow-glow-blue"
+                      : isBestValue
+                      ? "border-violet-300 shadow-sm"
+                      : ""
                   }`}
                 >
                   {isPopular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                       <Badge variant="brand" className="shadow-sm">
                         <Star className="w-3 h-3" />
-                        Most Popular
+                        Special Offer
+                      </Badge>
+                    </div>
+                  )}
+                  {isBestValue && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <Badge variant="violet" className="shadow-sm">
+                        <Sparkles className="w-3 h-3" />
+                        Best Value Package
                       </Badge>
                     </div>
                   )}
@@ -171,7 +185,13 @@ export default function PricingPage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-bold text-lg text-foreground font-outfit">{pkg.name}</h3>
-                      {isFree && <Badge variant="outline">Complimentary</Badge>}
+                      {isFree ? (
+                        <Badge variant="outline">Complimentary</Badge>
+                      ) : (
+                        <Badge variant={isPopular ? "brand" : isBestValue ? "violet" : "neutral"}>
+                          {combined} {combined === 1 ? "Quota" : "Quotas"}
+                        </Badge>
+                      )}
                     </div>
 
                     <div className="flex items-baseline gap-1 my-4">
@@ -208,7 +228,7 @@ export default function PricingPage() {
                         />
                         <span className={combined === 0 ? "text-muted-foreground" : "font-semibold text-brand-500"}>
                           {combined > 0
-                            ? `${combined} Complete Sets (Name + Surname)`
+                            ? `${combined} Complete Analysis ${combined === 1 ? "Quota" : "Quotas"} (Name + Surname)`
                             : "0 Combined Sets (Requires Paid Package)"}
                         </span>
                       </div>
@@ -221,7 +241,7 @@ export default function PricingPage() {
 
                   <div className="pt-8">
                     <Button
-                      variant={isPopular ? "gradient" : isFree ? "outline" : "secondary"}
+                      variant={isPopular || isBestValue ? "gradient" : isFree ? "outline" : "secondary"}
                       className="w-full justify-center"
                       isLoading={loadingProductId === pkg.id}
                       onClick={() => handleCheckout(pkg.id, pkg.code)}

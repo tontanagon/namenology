@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
       ip,
     });
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: true,
         user: {
@@ -149,6 +149,10 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     );
+
+    response.cookies.delete("namenology_free_trials");
+
+    return response;
   } catch (error) {
     logger.error("AUTH", "Unexpected error during signup", error);
     return NextResponse.json(

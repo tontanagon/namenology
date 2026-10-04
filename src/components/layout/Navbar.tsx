@@ -85,6 +85,14 @@ export const Navbar: React.FC<NavbarProps> = ({ variant = "default" }) => {
   const handleSignout = async () => {
     try {
       await fetch("/api/auth/signout", { method: "POST" });
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("namenology_free_analyses_count");
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith("namenology_free_analyses")) {
+            localStorage.removeItem(key);
+          }
+        });
+      }
       setUser(null);
       router.push("/");
       router.refresh();

@@ -272,8 +272,8 @@ async function main() {
   const products: ProductSeed[] = [
     {
       code: "FREE_TIER",
-      name: "Free Starter Allowance",
-      description: "Complimentary initial quota: 2 First Name and 2 Surname individual analyses (0 Combined).",
+      name: "Free",
+      description: "Complimentary initial allowance: 2 First Name and 2 Surname individual evaluations.",
       productType: ProductType.ANALYSIS_PACKAGE,
       price: 0.0,
       currency: "USD",
@@ -286,8 +286,8 @@ async function main() {
     },
     {
       code: "PKG_1_SET",
-      name: "1 Complete Analysis Set",
-      description: "Full complete set: 1 First Name + 1 Surname + 1 Combined synergy result.",
+      name: "Standard",
+      description: "1 Complete Analysis Quota: 1 First Name + 1 Surname + 1 Combined synergy result.",
       productType: ProductType.ANALYSIS_PACKAGE,
       price: 19.0,
       currency: "USD",
@@ -300,8 +300,8 @@ async function main() {
     },
     {
       code: "PKG_2_SETS",
-      name: "2 Complete Analysis Sets",
-      description: "Full complete sets: 2 First Names + 2 Surnames + 2 Combined synergy results.",
+      name: "Special Offer",
+      description: "2 Complete Analysis Quotas: 2 First Names + 2 Surnames + 2 Combined synergy results.",
       productType: ProductType.ANALYSIS_PACKAGE,
       price: 24.0,
       currency: "USD",
@@ -314,8 +314,8 @@ async function main() {
     },
     {
       code: "PKG_3_SETS",
-      name: "3 Complete Analysis Sets",
-      description: "Full complete sets: 3 First Names + 3 Surnames + 3 Combined synergy results.",
+      name: "Value Package",
+      description: "3 Complete Analysis Quotas: 3 First Names + 3 Surnames + 3 Combined synergy results.",
       productType: ProductType.ANALYSIS_PACKAGE,
       price: 45.0,
       currency: "USD",
@@ -328,8 +328,8 @@ async function main() {
     },
     {
       code: "PKG_5_SETS",
-      name: "5 Complete Analysis Sets",
-      description: "Full complete sets: 5 First Names + 5 Surnames + 5 Combined synergy results.",
+      name: "Best Value Package",
+      description: "5 Complete Analysis Quotas: 5 First Names + 5 Surnames + 5 Combined synergy results.",
       productType: ProductType.ANALYSIS_PACKAGE,
       price: 65.0, // Seeded as $65 per ADR-007 and REQ-B09
       currency: "USD",

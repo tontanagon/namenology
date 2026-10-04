@@ -65,9 +65,7 @@ export async function GET() {
       where: { userId: user.id },
     });
 
-    const effectiveAnalysesCount = Math.max(analysesCount, cookieTrials);
-
-    return NextResponse.json({
+    const response = NextResponse.json({
       authenticated: true,
       user: {
         id: user.id,
@@ -77,7 +75,7 @@ export async function GET() {
         stripeCustomerId: user.stripeCustomerId,
         createdAt: user.createdAt,
       },
-      analysesCount: effectiveAnalysesCount,
+      analysesCount,
       credits: {
         total: totalCredits,
         firstName: fnBal,
@@ -85,6 +83,11 @@ export async function GET() {
         combined: cbBal,
       },
     });
+
+    // Clear any leftover guest trial cookie so it never leaks across accounts
+    response.cookies.delete("namenology_free_trials");
+
+    return response;
   } catch (error) {
     console.error("Fetch current user error:", error);
     return NextResponse.json(

@@ -18,11 +18,24 @@ export async function POST(req: NextRequest) {
 
   let event: Stripe.Event;
 
+  const isDevOrTest = process.env.NODE_ENV !== "production";
+  const isMockMode =
+    isDevOrTest &&
+    (isStripePlaceholder || !webhookSecret || webhookSecret.includes("placeholder"));
+
   try {
-    if (isStripePlaceholder || !webhookSecret || webhookSecret.includes("placeholder")) {
-      // In development simulation mode, parse event payload directly
+    if (isMockMode) {
+      // In development / test simulation mode, parse event payload directly
       event = JSON.parse(body) as Stripe.Event;
     } else {
+      if (!webhookSecret) {
+        logger.security("STRIPE_WEBHOOK", "Missing STRIPE_WEBHOOK_SECRET in production environment");
+        return NextResponse.json(
+          { error: "Stripe webhook is not configured on this server." },
+          { status: 500 }
+        );
+      }
+
       if (!signature) {
         logger.security("STRIPE_WEBHOOK", "Missing stripe-signature header");
         return NextResponse.json(
@@ -30,6 +43,7 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
+
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     }
   } catch (err) {

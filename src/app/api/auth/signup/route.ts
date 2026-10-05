@@ -12,7 +12,7 @@ import { createSession, setSessionCookie } from "@/lib/auth/session";
 import { enforceRateLimit, createRateLimitResponse, getClientIp } from "@/lib/security/rate-limiter";
 import { sanitizeString } from "@/lib/security/sanitize";
 import { logger } from "@/lib/logger";
-import { Role } from "@prisma/client";
+import { Role, CreditType, CreditSourceType } from "@prisma/client";
 import { emailService } from "@/services/email.service";
 import { verificationService } from "@/services/verification.service";
 
@@ -96,6 +96,38 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Grant initial free trial credits per PROJECT_SPEC & AnalysisConfig (REQ-B03, REQ-B12)
+    const activeConfig = await prisma.analysisConfig.findFirst({
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
+    });
+    const freeFn = activeConfig?.freeFirstNameLimit ?? 2;
+    const freeSn = activeConfig?.freeSurnameLimit ?? 2;
+
+    const initialCredits = [];
+    if (freeFn > 0) {
+      initialCredits.push({
+        userId: newUser.id,
+        creditType: CreditType.FIRST_NAME,
+        amount: freeFn,
+        sourceType: CreditSourceType.FREE,
+      });
+    }
+    if (freeSn > 0) {
+      initialCredits.push({
+        userId: newUser.id,
+        creditType: CreditType.SURNAME,
+        amount: freeSn,
+        sourceType: CreditSourceType.FREE,
+      });
+    }
+
+    if (initialCredits.length > 0) {
+      await prisma.creditLedger.createMany({
+        data: initialCredits,
+      });
+    }
+
     // Create initial welcome notification
     await prisma.notification.create({
       data: {
@@ -128,7 +160,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Set secure HttpOnly cookie
-    setSessionCookie(token, session.expiresAt);
+    await setSessionCookie(token, session.expiresAt);
 
     logger.info("AUTH", "New user registered with initial allowances", {
       userId: newUser.id,

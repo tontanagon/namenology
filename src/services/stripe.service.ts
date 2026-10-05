@@ -179,6 +179,14 @@ export class StripeService {
       let currentOrderId = orderId;
 
       if (existingOrder) {
+        if (existingOrder.status === OrderStatus.PAID) {
+          logger.info("STRIPE", "Order already marked as PAID, skipping duplicate entitlement processing", {
+            orderId: existingOrder.id,
+            sessionId,
+          });
+          return;
+        }
+
         currentOrderId = existingOrder.id;
         await tx.order.update({
           where: { id: existingOrder.id },

@@ -1,0 +1,85 @@
+# =============================================================================
+# OPTIONAL IN-CLUSTER POSTGRESQL 16 (For self-hosted Kubernetes clusters)
+# If using external DB (e.g., Supabase, Neon, AWS RDS), do not apply this file.
+# =============================================================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  labels:
+    app: namenology-postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: namenology-postgres
+  labels:
+    app: namenology-postgres
+spec:
+  serviceName: namenology-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: namenology-postgres
+  template:
+    metadata:
+      labels:
+        app: namenology-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_USER
+              value: "namenology_user"
+            - name: POSTGRES_PASSWORD
+              value: "namenology_secure_pass"
+            - name: POSTGRES_DB
+              value: "namenology_db"
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U namenology_user -d namenology_db
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: namenology-postgres
+  labels:
+    app: namenology-postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: namenology-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432

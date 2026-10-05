@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Set secure HttpOnly cookie
-    setSessionCookie(token, session.expiresAt);
+    await setSessionCookie(token, session.expiresAt);
 
     logger.info("AUTH", "User signed in successfully", {
       userId: user.id,

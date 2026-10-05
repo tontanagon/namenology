@@ -15,10 +15,11 @@ const adjustSchema = z.object({
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const admin = await requireAdmin();
+    const { id } = await params;
 
     const body = await req.json();
     const validated = adjustSchema.safeParse(body);
@@ -32,7 +33,7 @@ export async function POST(
     const { creditType, amount, reason } = validated.data;
 
     const targetUser = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!targetUser) {

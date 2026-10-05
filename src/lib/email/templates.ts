@@ -287,3 +287,42 @@ export function getVerificationEmailHtml(name: string, verifyUrl: string): strin
 
   return baseEmailLayout("Verify Your Email Address — NAMENOLOGY", body);
 }
+
+/**
+ * 6. Password Reset Link Template
+ */
+export function getPasswordResetEmailHtml(name: string, resetUrl: string): string {
+  const body = `
+    <div class="pill" style="background: rgba(239, 68, 68, 0.1); color: #EF4444; border-color: rgba(239, 68, 68, 0.2);">Password Security</div>
+    <h2 style="margin: 0 0 16px; color: #0F172A; font-size: 22px; font-weight: 800;">
+      Reset Your Password
+    </h2>
+    <p>Hello ${name},</p>
+    <p>
+      We received a request to reset the password associated with your <strong>NAMENOLOGY</strong> account.
+      Click the button below to set a new password:
+    </p>
+
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${resetUrl}" class="btn" style="padding: 14px 36px; font-size: 15px; background: #0B5CFF;">
+        Reset Password
+      </a>
+    </div>
+
+    <div style="background-color: #F8FAFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px 20px; margin: 24px 0;">
+      <p style="margin: 0 0 6px; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">
+        Button not working? Copy and paste this link into your browser:
+      </p>
+      <p style="margin: 0; font-size: 12px; word-break: break-all; color: #0B5CFF;">
+        <a href="${resetUrl}" style="color: #0B5CFF; text-decoration: underline;">${resetUrl}</a>
+      </p>
+    </div>
+
+    <p style="font-size: 13px; color: #64748B;">
+      This link is valid for <strong>1 hour</strong>. If you did not initiate this request, your account is still secure and you can safely ignore this email.
+    </p>
+  `;
+
+  return baseEmailLayout("Reset Your Password — NAMENOLOGY", body);
+}
+

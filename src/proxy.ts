@@ -24,7 +24,7 @@ const PROTECTED_PREFIXES = [
 // Routes accessible only when NOT signed in
 const AUTH_PREFIXES = ["/signin", "/signup"];
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // 1. API Route Defense: CSRF and origin validation for mutating endpoints

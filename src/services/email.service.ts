@@ -10,6 +10,7 @@ import {
   getTestEmailHtml,
   getAnalysisReadyEmailHtml,
   getVerificationEmailHtml,
+  getPasswordResetEmailHtml,
 } from "@/lib/email/templates";
 import { prisma } from "@/lib/prisma";
 
@@ -22,6 +23,17 @@ export class EmailService {
       to,
       subject: "Verify Your Email Address — NAMENOLOGY",
       html: getVerificationEmailHtml(name, verifyUrl),
+    });
+  }
+
+  /**
+   * Sends a password reset link to user.
+   */
+  async sendPasswordResetEmail(to: string, name: string, resetUrl: string): Promise<SendMailResult> {
+    return sendEmail({
+      to,
+      subject: "Reset Your Password — NAMENOLOGY",
+      html: getPasswordResetEmailHtml(name, resetUrl),
     });
   }
 

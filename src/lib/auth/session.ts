@@ -59,8 +59,8 @@ export async function createSession(
 /**
  * Sets the secure session cookie on the outgoing response.
  */
-export function setSessionCookie(token: string, expiresAt: Date) {
-  const cookieStore = cookies();
+export async function setSessionCookie(token: string, expiresAt: Date) {
+  const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -73,8 +73,8 @@ export function setSessionCookie(token: string, expiresAt: Date) {
 /**
  * Clears the session cookie from the browser.
  */
-export function clearSessionCookie() {
-  const cookieStore = cookies();
+export async function clearSessionCookie() {
+  const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -135,7 +135,7 @@ export async function validateSessionToken(
  * Retrieves and validates the current session from incoming request cookies.
  */
 export async function getCurrentSession(): Promise<SessionValidationResult> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (!token) {
     return { session: null, user: null };
@@ -147,7 +147,7 @@ export async function getCurrentSession(): Promise<SessionValidationResult> {
  * Invalidates a session by deleting it from the database and removing the cookie.
  */
 export async function destroySession(token?: string): Promise<void> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const sessionToken = token || cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
   if (sessionToken) {
@@ -156,5 +156,5 @@ export async function destroySession(token?: string): Promise<void> {
     }).catch(() => {});
   }
 
-  clearSessionCookie();
+  await clearSessionCookie();
 }

@@ -14,10 +14,11 @@ const productPatchSchema = z.object({
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const admin = await requireAdmin();
+    const { id } = await params;
 
     const body = await req.json();
     const validated = productPatchSchema.safeParse(body);
@@ -29,7 +30,7 @@ export async function PATCH(
     }
 
     const existing = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existing) {
@@ -38,7 +39,7 @@ export async function PATCH(
 
     const updated = await prisma.$transaction(async (tx) => {
       const record = await tx.product.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           price: validated.data.price !== undefined ? validated.data.price : existing.price,
           isActive: validated.data.isActive !== undefined ? validated.data.isActive : existing.isActive,

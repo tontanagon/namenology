@@ -1,6 +1,6 @@
 # =============================================================================
-# PRODUCTION MULTI-STAGE DOCKERFILE — NAMENOLOGY PLATFORM
-# Highly optimized, secure non-root container with standalone Next.js & Prisma
+# PRODUCTION MULTI-STAGE DOCKERFILE — NAMENOLOGY PLATFORM (KUBERNETES READY)
+# Highly optimized, secure non-root container with standalone Next.js 16 & Prisma
 # =============================================================================
 
 # 1. Dependency stage
@@ -28,7 +28,7 @@ RUN npm run build
 
 # 3. Runner stage
 FROM node:20-alpine AS runner
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat wget
 WORKDIR /app
 
 ENV NODE_ENV production
@@ -36,13 +36,15 @@ ENV NEXT_TELEMETRY_DISABLED 1
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-# Non-root security user & group
+# Non-root security user & group for Kubernetes PodSecurityStandards
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Public assets & Prisma schema
 COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
-# Automatically leverage output traces to reduce image size
+# Automatically leverage Next.js standalone output traces
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 

@@ -119,6 +119,31 @@ export class AnalysisService {
 
     // 4. Transaction-safe atomic execution: Deduct credit + Save analysis record
     const result = await prisma.$transaction(async (tx) => {
+      // Re-verify balance inside the transaction to eliminate TOCTOU race conditions
+      const txCbBalance = await creditLedgerRepository.getBalance(userId, CreditType.COMBINED, tx);
+      const txFnBalance = await creditLedgerRepository.getBalance(userId, CreditType.FIRST_NAME, tx);
+      const txSnBalance = await creditLedgerRepository.getBalance(userId, CreditType.SURNAME, tx);
+
+      let effectiveDeduction = deductionType;
+      if (analysisType === CreditType.COMBINED) {
+        if (txCbBalance >= 1) {
+          effectiveDeduction = "COMBINED";
+        } else if (txFnBalance >= 1 && txSnBalance >= 1) {
+          effectiveDeduction = "PAIR";
+        } else {
+          throw new InsufficientCreditsError(
+            CreditType.COMBINED,
+            txCbBalance + Math.min(txFnBalance, txSnBalance)
+          );
+        }
+      } else {
+        const singleBal = analysisType === CreditType.FIRST_NAME ? txFnBalance : txSnBalance;
+        if (singleBal < 1) {
+          throw new InsufficientCreditsError(analysisType, singleBal);
+        }
+        effectiveDeduction = "SINGLE";
+      }
+
       // Create analysis record with frozen config snapshot (REQ-B24)
       const createdAnalysis = await analysisRepository.createAnalysis(
         {
@@ -147,7 +172,7 @@ export class AnalysisService {
       );
 
       // Deduct from the auditable credit ledger
-      if (deductionType === "COMBINED") {
+      if (effectiveDeduction === "COMBINED") {
         await creditLedgerRepository.recordEntry(
           {
             userId,

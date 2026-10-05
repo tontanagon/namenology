@@ -22,9 +22,7 @@ const nextConfig = {
   output: "standalone",
   reactStrictMode: true,
   poweredByHeader: false,
-  experimental: {
-    serverComponentsExternalPackages: ["@node-rs/argon2", "@prisma/client", "prisma"],
-  },
+  serverExternalPackages: ["@node-rs/argon2", "@prisma/client", "prisma"],
   async headers() {
     return [
       {

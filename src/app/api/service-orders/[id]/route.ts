@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { user } = await getCurrentSession();
@@ -14,8 +14,10 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     const serviceOrder = await prisma.serviceOrder.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         product: true,
       },

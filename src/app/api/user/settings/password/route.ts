@@ -59,9 +59,22 @@ export async function POST(req: NextRequest) {
     // Hash new password with Argon2id
     const newPasswordHash = await hashPassword(newPassword);
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { passwordHash: newPasswordHash },
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: user.id },
+        data: { passwordHash: newPasswordHash },
+      });
+
+      // Revoke all other active sessions for security
+      const sessionResult = await getCurrentSession();
+      if (sessionResult.session) {
+        await tx.session.deleteMany({
+          where: {
+            userId: user.id,
+            NOT: { id: sessionResult.session.id },
+          },
+        });
+      }
     });
 
     // Send security email alert
@@ -71,7 +84,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Password updated successfully",
+      message: "Password updated successfully. Other active sessions have been signed out.",
     });
   } catch (error) {
     console.error("Failed to update password:", error);

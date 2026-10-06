@@ -34,6 +34,7 @@ import {
   Share2,
   ShieldAlert,
   HeartPulse,
+  AlertCircle,
 } from "lucide-react";
 import { getNumerologyGroup } from "@/lib/data/numerology-groups";
 
@@ -78,6 +79,7 @@ export default function AnalysisResultDetailPage() {
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isVerificationError, setIsVerificationError] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -87,10 +89,13 @@ export default function AnalysisResultDetailPage() {
       try {
         setLoading(true);
         const res = await fetch(`/api/analysis/${id}`);
-        if (!res.ok) {
-          throw new Error("Analysis report not found or access denied.");
-        }
         const data = await res.json();
+        if (!res.ok) {
+          if (data.code === "EMAIL_VERIFICATION_REQUIRED") {
+            setIsVerificationError(true);
+          }
+          throw new Error(data.error || "Analysis report not found or access denied.");
+        }
         const raw = data.analysis;
         const transformedComponents = (raw.components || []).map((c: any) => {
           const compKey = c.componentKey || c.key;
@@ -456,18 +461,44 @@ export default function AnalysisResultDetailPage() {
         <Navbar />
         <main className="flex-1 max-w-2xl mx-auto px-4 py-16 text-center">
           <Card variant="science" className="p-8">
-            <div className="w-12 h-12 mx-auto rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mb-4">
-              <Radio className="w-6 h-6" />
-            </div>
-            <h2 className="text-xl font-bold text-foreground mb-2">
-              Dossier Unavailable
-            </h2>
-            <p className="text-sm text-muted-foreground mb-6">
-              {error || "Could not locate analysis report."}
-            </p>
-            <Link href="/analyze">
-              <Button variant="primary">Return to Analysis Engine</Button>
-            </Link>
+            {isVerificationError ? (
+              <>
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mb-4 shadow-xs">
+                  <AlertCircle className="w-7 h-7" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-900 mb-2 font-outfit">
+                  กรุณายืนยันอีเมลของคุณ
+                </h2>
+                <p className="text-sm text-slate-600 mb-6 max-w-md mx-auto">
+                  {error || "คุณต้องยืนยันอีเมลก่อนเพื่อเข้าดูรายงานบทวิเคราะห์ฉบับนี้"}
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Link href="/verify-email">
+                    <Button variant="primary" className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6">
+                      ยืนยันอีเมลตอนนี้ &rarr;
+                    </Button>
+                  </Link>
+                  <Link href="/analyze">
+                    <Button variant="outline">กลับสู่หน้าวิเคราะห์</Button>
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-12 h-12 mx-auto rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mb-4">
+                  <Radio className="w-6 h-6" />
+                </div>
+                <h2 className="text-xl font-bold text-foreground mb-2">
+                  Dossier Unavailable
+                </h2>
+                <p className="text-sm text-muted-foreground mb-6">
+                  {error || "Could not locate analysis report."}
+                </p>
+                <Link href="/analyze">
+                  <Button variant="primary">Return to Analysis Engine</Button>
+                </Link>
+              </>
+            )}
           </Card>
         </main>
       </div>

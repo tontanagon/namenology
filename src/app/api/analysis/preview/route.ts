@@ -24,6 +24,16 @@ export async function POST(req: NextRequest) {
   try {
     const { user } = await getCurrentSession();
 
+    if (user && !user.emailVerified) {
+      return NextResponse.json(
+        {
+          error: "กรุณายืนยันอีเมลของคุณก่อนเข้าใช้งานบทวิเคราะห์ (Please verify your email address to access analysis features.)",
+          code: "EMAIL_VERIFICATION_REQUIRED",
+        },
+        { status: 403 }
+      );
+    }
+
     // 1. Quota Enforcement: Check if user has exceeded 2 free trial analyses
     const cookieTrials = parseInt(req.cookies.get("namenology_free_trials")?.value || "0", 10);
 

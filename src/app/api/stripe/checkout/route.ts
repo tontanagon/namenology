@@ -26,6 +26,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!user.emailVerified) {
+      logger.security("STRIPE", "Checkout attempted by unverified user", { userId: user.id });
+      return NextResponse.json(
+        {
+          error: "กรุณายืนยันอีเมลของคุณก่อนทำรายการชำระเงิน (Please verify your email address before initiating payment.)",
+          code: "EMAIL_VERIFICATION_REQUIRED",
+        },
+        { status: 403 }
+      );
+    }
+
     const rateLimit = await enforceRateLimit(req, {
       preset: "CHECKOUT",
       identifier: user.id,

@@ -77,6 +77,8 @@ export default function AnalyzePage() {
     combined: 0,
   });
   const [freeAnalysesCount, setFreeAnalysesCount] = useState<number>(0);
+  const [isEmailVerified, setIsEmailVerified] = useState<boolean | null>(null);
+  const [userEmail, setUserEmail] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,6 +100,11 @@ export default function AnalyzePage() {
 
     if (!trimmedFirst || !trimmedSurname) {
       setError("Please provide both Official First Name and Official Surname to compute the complete analysis.");
+      return;
+    }
+
+    if (isEmailVerified === false) {
+      setError("กรุณายืนยันอีเมลของคุณก่อนเข้าใช้งานบทวิเคราะห์");
       return;
     }
 
@@ -129,9 +136,12 @@ export default function AnalyzePage() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (data.code === "EMAIL_VERIFICATION_REQUIRED") {
+          setIsEmailVerified(false);
+        }
         setError(data.error || "Calculation failed. Please verify character inputs.");
         setPreview(null);
-        if (res.status === 403) {
+        if (res.status === 403 && data.code !== "EMAIL_VERIFICATION_REQUIRED") {
           setFreeAnalysesCount((prev) => Math.max(prev, 2));
         }
         setLoading(false);
@@ -197,6 +207,10 @@ export default function AnalyzePage() {
       const res = await fetch("/api/auth/me");
       const data = await res.json();
       if (data) {
+        if (data.user) {
+          setUserEmail(data.user.email || "");
+          setIsEmailVerified(Boolean(data.user.emailVerified ?? data.isEmailVerified));
+        }
         if (data.credits) {
           creds = {
             total:
@@ -435,6 +449,31 @@ export default function AnalyzePage() {
           )}
         </div>
 
+        {/* Email Verification Required Banner */}
+        {isEmailVerified === false && (
+          <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/95 border-2 border-amber-300 shadow-sm animate-in fade-in flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 text-amber-700">
+                <AlertCircle className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-bold text-slate-900 text-sm">
+                  กรุณายืนยันอีเมลก่อนเข้าใช้งานบทวิเคราะห์
+                </p>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  ระบบต้องการการยืนยันอีเมล {userEmail ? `(${userEmail})` : ""} เพื่อปลดล็อกการวิเคราะห์ชื่อและการบันทึกรายงาน
+                </p>
+              </div>
+            </div>
+            <Link href={`/verify-email?email=${encodeURIComponent(userEmail)}`} className="shrink-0">
+              <Button size="sm" variant="primary" className="bg-amber-600 hover:bg-amber-700 text-white font-bold h-9">
+                <span>ยืนยันอีเมลทันที</span>
+                <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+              </Button>
+            </Link>
+          </div>
+        )}
+
         {/* ========================================================================= */}
         {/* NAME INPUT FORM                                                           */}
         {/* ========================================================================= */}
@@ -513,7 +552,19 @@ export default function AnalyzePage() {
                 </span>
               </div>
 
-              {freeAnalysesCount >= 2 && credits.total <= 0 ? (
+              {isEmailVerified === false ? (
+                <Link href={`/verify-email?email=${encodeURIComponent(userEmail)}`} className="w-full sm:w-auto">
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="lg"
+                    className="w-full sm:w-auto px-8 font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-500/20"
+                  >
+                    <Lock className="w-4 h-4 mr-2" />
+                    <span>กรุณายืนยันอีเมลก่อนวิเคราะห์</span>
+                  </Button>
+                </Link>
+              ) : freeAnalysesCount >= 2 && credits.total <= 0 ? (
                 <Link href="/pricing" className="w-full sm:w-auto">
                   <Button
                     type="button"

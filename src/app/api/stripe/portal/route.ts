@@ -19,6 +19,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!user.emailVerified) {
+      return NextResponse.json(
+        {
+          error: "กรุณายืนยันอีเมลของคุณก่อนเข้าใช้งาน Customer Portal",
+          code: "EMAIL_VERIFICATION_REQUIRED",
+        },
+        { status: 403 }
+      );
+    }
+
     const appUrl =
       process.env.NEXT_PUBLIC_APP_URL ||
       `${req.nextUrl.protocol}//${req.nextUrl.host}`;

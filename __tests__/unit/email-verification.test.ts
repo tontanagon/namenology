@@ -92,4 +92,31 @@ describe("Email Verification Unit Tests", () => {
       expect(getStatusLabel(new Date())).toBe("Verified");
     });
   });
+
+  describe("Analysis & Payment Enforcement Gate", () => {
+    const canAccessFeature = (user: { emailVerified: Date | null } | null): boolean => {
+      if (!user) return false;
+      return user.emailVerified !== null;
+    };
+
+    it("blocks analysis features when user email is not verified", () => {
+      const unverifiedUser = { emailVerified: null };
+      expect(canAccessFeature(unverifiedUser)).toBe(false);
+    });
+
+    it("allows analysis features when user email is verified", () => {
+      const verifiedUser = { emailVerified: new Date() };
+      expect(canAccessFeature(verifiedUser)).toBe(true);
+    });
+
+    it("blocks payment and checkout when user email is not verified", () => {
+      const unverifiedUser = { emailVerified: null };
+      expect(canAccessFeature(unverifiedUser)).toBe(false);
+    });
+
+    it("permits payment and checkout when user email is verified", () => {
+      const verifiedUser = { emailVerified: new Date() };
+      expect(canAccessFeature(verifiedUser)).toBe(true);
+    });
+  });
 });

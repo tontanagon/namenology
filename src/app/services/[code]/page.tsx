@@ -122,6 +122,10 @@ export default function ServiceDetailPage() {
           router.push(`/signin?redirect=/services/${codeParam}`);
           return;
         }
+        if (checkoutRes.status === 403 && checkoutData.code === "EMAIL_VERIFICATION_REQUIRED") {
+          router.push("/verify-email");
+          return;
+        }
         throw new Error(checkoutData.error || "Failed to initialize checkout.");
       }
 

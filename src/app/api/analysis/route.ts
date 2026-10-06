@@ -32,6 +32,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!user.emailVerified) {
+      return NextResponse.json(
+        {
+          error: "กรุณายืนยันอีเมลของคุณก่อนเข้าใช้งานบทวิเคราะห์ (Please verify your email address to access analysis features.)",
+          code: "EMAIL_VERIFICATION_REQUIRED",
+        },
+        { status: 403 }
+      );
+    }
+
     // Rate limiting per user ID
     const rateLimit = await enforceRateLimit(req, {
       preset: "ANALYSIS",
@@ -108,6 +118,16 @@ export async function GET(req: NextRequest) {
     const { user } = await getCurrentSession();
     if (!user) {
       return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+    }
+
+    if (!user.emailVerified) {
+      return NextResponse.json(
+        {
+          error: "กรุณายืนยันอีเมลของคุณก่อนเข้าใช้งานบทวิเคราะห์",
+          code: "EMAIL_VERIFICATION_REQUIRED",
+        },
+        { status: 403 }
+      );
     }
 
     const searchParams = req.nextUrl.searchParams;

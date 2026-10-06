@@ -42,6 +42,8 @@ export default function PricingPage() {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [loadingProductId, setLoadingProductId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isEmailVerified, setIsEmailVerified] = useState<boolean | null>(null);
+  const [userEmail, setUserEmail] = useState<string>("");
 
   useEffect(() => {
     fetch("/api/products")
@@ -52,11 +54,26 @@ export default function PricingPage() {
         }
       })
       .catch(() => {});
+
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated && data.user) {
+          setUserEmail(data.user.email || "");
+          setIsEmailVerified(Boolean(data.user.emailVerified ?? data.isEmailVerified));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const handleCheckout = async (productId: string, code: string) => {
     if (code === "FREE_TIER") {
       router.push("/signup");
+      return;
+    }
+
+    if (isEmailVerified === false) {
+      setError("กรุณายืนยันอีเมลของคุณก่อนทำรายการชำระเงิน (Please verify your email before checkout)");
       return;
     }
 
@@ -74,6 +91,13 @@ export default function PricingPage() {
 
       if (res.status === 401) {
         router.push("/signin?callbackUrl=/pricing");
+        return;
+      }
+
+      if (res.status === 403 && data.code === "EMAIL_VERIFICATION_REQUIRED") {
+        setIsEmailVerified(false);
+        setError(data.error || "กรุณายืนยันอีเมลของคุณก่อนทำรายการชำระเงิน");
+        setLoadingProductId(null);
         return;
       }
 
@@ -117,6 +141,30 @@ export default function PricingPage() {
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
             Deterministic calculation entitlements with complete transparency. No recurring hidden fees.
           </p>
+
+          {isEmailVerified === false && (
+            <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-left max-w-xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs animate-in fade-in">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 text-amber-700">
+                  <AlertCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-900">
+                    ต้องยืนยันอีเมลก่อนทำรายการชำระเงิน
+                  </p>
+                  <p className="text-[11px] text-slate-600 mt-0.5">
+                    กรุณายืนยันอีเมล {userEmail ? `(${userEmail})` : ""} เพื่อปลดล็อกการสั่งซื้อแพ็กเกจ
+                  </p>
+                </div>
+              </div>
+              <Link href={`/verify-email?email=${encodeURIComponent(userEmail)}`} className="shrink-0">
+                <Button size="sm" variant="primary" className="bg-amber-600 hover:bg-amber-700 text-white font-bold h-8 text-xs">
+                  <span>ยืนยันอีเมลทันที</span>
+                  <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                </Button>
+              </Link>
+            </div>
+          )}
 
           {error && (
             <div className="p-3 rounded-xl bg-red-50 border border-red-200 inline-flex items-center gap-2 text-xs text-red-600 mt-2">

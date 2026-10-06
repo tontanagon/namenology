@@ -72,9 +72,12 @@ export async function GET() {
         email: user.email,
         name: user.name,
         role: user.role,
+        emailVerified: user.emailVerified,
+        isEmailVerified: Boolean(user.emailVerified),
         stripeCustomerId: user.stripeCustomerId,
         createdAt: user.createdAt,
       },
+      isEmailVerified: Boolean(user.emailVerified),
       analysesCount,
       credits: {
         total: totalCredits,

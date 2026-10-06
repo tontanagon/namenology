@@ -22,6 +22,16 @@ export async function GET(
       );
     }
 
+    if (!user.emailVerified && user.role !== "ADMIN") {
+      return NextResponse.json(
+        {
+          error: "กรุณายืนยันอีเมลของคุณก่อนเข้าดูรายงานบทวิเคราะห์",
+          code: "EMAIL_VERIFICATION_REQUIRED",
+        },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     const analysis = await analysisService.getAnalysisById(
       id,

@@ -17,6 +17,7 @@ export interface AuthenticatedUser {
   name: string;
   role: string;
   isActive: boolean;
+  emailVerified: Date | null;
   stripeCustomerId: string | null;
   createdAt: Date;
 }
@@ -105,6 +106,7 @@ export async function validateSessionToken(
           name: true,
           role: true,
           isActive: true,
+          emailVerified: true,
           stripeCustomerId: true,
           createdAt: true,
         },

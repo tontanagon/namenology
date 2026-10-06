@@ -26,7 +26,7 @@ interface NavbarProps {
 }
 
 /* ── NAMENOLOGY Logo (Inline SVG) ── */
-const NamenologyLogo: React.FC<{ className?: string }> = ({ className }) => (
+export const NamenologyLogo: React.FC<{ className?: string }> = ({ className }) => (
   <svg
     viewBox="0 0 36 36"
     fill="none"

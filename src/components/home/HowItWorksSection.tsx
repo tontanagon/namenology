@@ -236,7 +236,7 @@ const HOW_STEPS = [
     stepNumber: "01",
     phase: "Step 1",
     id: "enter-name",
-    title: "1. Enter Your Official Name",
+    title: "Enter Your Official Name",
     description:
       "Enter your first name and surname exactly as they appear on your official documents.",
     svg: <OfficialNameInputSvg />,
@@ -245,7 +245,7 @@ const HOW_STEPS = [
     stepNumber: "02",
     phase: "Step 2",
     id: "letters-to-numbers",
-    title: "2. Letters Become Numbers",
+    title: "Letters Become Numbers",
     description:
       "Our system converts the letters in your first name and surname into numbers from 0–9.",
     svg: <LettersToNumbersSvg />,
@@ -254,7 +254,7 @@ const HOW_STEPS = [
     stepNumber: "03",
     phase: "Step 3",
     id: "numbers-combined",
-    title: "3. Numbers Are Combined",
+    title: "Numbers Are Combined",
     description:
       "The numbers from your first name, surname, and full name are calculated to create numbers from 1–100.",
     svg: <NumbersCombinedSvg />,
@@ -263,7 +263,7 @@ const HOW_STEPS = [
     stepNumber: "04",
     phase: "Step 4",
     id: "receive-analysis",
-    title: "4. Receive Your Analysis",
+    title: "Receive Your Analysis",
     description:
       "You receive an analysis explaining the meanings and characteristics associated with your numbers.",
     svg: <ReceiveAnalysisSvg />,
@@ -307,7 +307,7 @@ export const HowItWorksSection: React.FC = () => {
             HOW <span className="gradient-text-cosmic-bright">NAMENOLOGY WORKS</span>
           </h2>
 
-          <p className="mt-4 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal max-w-2xl mx-auto">
+          <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed font-normal max-w-2xl mx-auto">
             Namenology explores three key areas:{" "}
             <strong className="text-slate-900 font-semibold">Personality</strong>,{" "}
             <strong className="text-slate-900 font-semibold">Life Influence & Relationships</strong>, and{" "}
@@ -332,20 +332,23 @@ export const HowItWorksSection: React.FC = () => {
                     className={`
                       relative rounded-2xl p-5 sm:p-6 transition-all duration-300 flex flex-col justify-between
                       border bg-white hover:-translate-y-1.5 h-full group
-                      ${
-                        isHovered
-                          ? "border-blue-300 shadow-xl shadow-indigo-500/10"
-                          : "border-slate-200/80 shadow-xs"
+                      ${isHovered
+                        ? "border-blue-300 shadow-xl shadow-indigo-500/10"
+                        : "border-slate-200/80 shadow-xs"
                       }
                     `}
                   >
                     <div>
                       {/* Step Indicator Header */}
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-[10px] font-mono font-bold text-blue-700 bg-blue-50 border border-blue-200/70 px-2 py-0.5 rounded">
+                        {/* <span className="text-xs font-mono font-bold text-blue-700 bg-blue-50 border border-blue-200/70 px-2 py-0.5 rounded">
                           #{step.stepNumber}
-                        </span>
-                        <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                        </span> */}
+                        <span className={`text-xs uppercase tracking-wider font-semibold
+                        ${isHovered
+                            ? "text-blue-700"
+                            : "text-slate-400"
+                          }`}>
                           {step.phase}
                         </span>
                       </div>
@@ -356,12 +359,12 @@ export const HowItWorksSection: React.FC = () => {
                       </div>
 
                       {/* Title */}
-                      <h3 className="font-outfit font-bold text-base sm:text-lg text-slate-900 text-center mt-3 mb-2 tracking-tight group-hover:text-blue-600 transition-colors">
+                      <h3 className="font-outfit font-bold text-lg sm:text-xl text-slate-900 text-center mt-3 mb-2 tracking-tight group-hover:text-blue-600 transition-colors">
                         {step.title}
                       </h3>
 
                       {/* Description */}
-                      <p className="text-xs text-slate-600 leading-relaxed text-center font-normal">
+                      <p className="text-sm text-slate-600 leading-relaxed text-center font-normal">
                         {step.description}
                       </p>
                     </div>
@@ -392,48 +395,31 @@ export const HowItWorksSection: React.FC = () => {
         </div>
 
         {/* ================================================================= */}
-        {/* IN SIMPLE TERMS SUMMARY                                            */}
+        {/* SUPPLEMENTARY DESCRIPTIONS — ARTICLE STYLE (NO CARDS / NO BORDERS) */}
         {/* ================================================================= */}
-        <div className="mt-12 sm:mt-14 p-6 sm:p-7 rounded-2xl bg-white border border-indigo-100/90 max-w-4xl mx-auto shadow-sm">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200/80 text-blue-600 flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs font-bold text-blue-700 font-outfit uppercase tracking-wider">
-                In Simple Terms
-              </p>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
-                In simple terms, Namenology transforms the letters of your official name into numbers, combines them,
-                and interprets the resulting numbers to provide insights into the three key areas above.
-              </p>
-            </div>
-          </div>
-        </div>
+        <div className="mt-14 sm:mt-18 max-w-3xl mx-auto pt-10 sm:pt-12 border-t border-slate-200/70 space-y-8 sm:space-y-10">
+          {/* 1. In Simple Terms */}
+          <article className="space-y-2.5">
+            <h4 className="font-outfit font-bold text-xl sm:text-2xl text-slate-900 tracking-tight">
+              In Simple Terms
+            </h4>
+            <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
+              In simple terms, Namenology transforms the letters of your official name into numbers, combines them,
+              and interprets the resulting numbers to provide insights into the three key areas above.
+            </p>
+          </article>
 
-        {/* ================================================================= */}
-        {/* ONE NUMERICAL SYSTEM, DIFFERENT LANGUAGES                         */}
-        {/* ================================================================= */}
-        <div className="mt-5 p-7 sm:p-8 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-950 text-white max-w-4xl mx-auto shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 relative z-10 text-center sm:text-left">
-            <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/20 text-cyan-300 flex items-center justify-center shrink-0 mt-0.5 shadow-inner">
-              <Globe2 className="w-6 h-6" />
-            </div>
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-cyan-300 tracking-widest uppercase">
-                Universal Framework
-              </span>
-              <h4 className="text-base sm:text-lg font-bold font-outfit text-white tracking-tight">
-                One Numerical System, Different Languages
-              </h4>
-              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
-                People around the world use different languages and alphabets, but numbers are universal.
-                Namenology uses one numerical system to explore names through numbers, creating a common framework for
-                understanding names across languages.
-              </p>
-            </div>
-          </div>
+          {/* 2. One Numerical System, Different Languages */}
+          <article className="space-y-2.5 pt-8 sm:pt-10 border-t border-slate-200/60">
+            <h4 className="font-outfit font-bold text-xl sm:text-2xl text-slate-900 tracking-tight">
+              One Numerical System, Different Languages
+            </h4>
+            <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
+              People around the world use different languages and alphabets, but numbers are universal.
+              Namenology uses one numerical system to explore names through numbers, creating a common framework for
+              understanding names across languages.
+            </p>
+          </article>
         </div>
       </div>
     </section>

@@ -670,46 +670,48 @@ export default function AnalysisResultDetailPage() {
           </div>
 
           {/* 3. Meanings & Symbols */}
-          <div className="p-5 rounded-2xl bg-brand-50/60 border border-brand-200/60 space-y-1.5">
-            <span className="text-xs font-bold uppercase tracking-wider text-brand-700 block">
-              3. Meanings & Symbols:
-            </span>
-            <p className="text-sm font-semibold text-brand-950 leading-relaxed">
-              {groupArticle.meaningsAndSymbols}
-            </p>
-          </div>
+          {Boolean(groupArticle.meaningsAndSymbols && groupArticle.meaningsAndSymbols.trim()) && (
+            <div className="p-5 rounded-2xl bg-brand-50/60 border border-brand-200/60 space-y-1.5">
+              <span className="text-[18px] font-bold uppercase tracking-wider text-brand-700 block">
+                3. Meanings & Symbols:
+              </span>
+              <p className="text-[16px] font-semibold text-brand-950 leading-relaxed">
+                {groupArticle.meaningsAndSymbols}
+              </p>
+            </div>
+          )}
 
           {/* Characteristics of Group X */}
           <div className="space-y-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2 font-outfit">
-              <span className="w-2 h-2 rounded-full bg-brand-500" />
+            <h3 className="text-[18px] font-bold uppercase tracking-wider text-foreground flex items-center gap-2 font-outfit">
+              <span className="w-2.5 h-2.5 rounded-full bg-brand-500" />
               <span>
                 Characteristics of Group {groupArticle.groupNumber} ({groupArticle.numbersFormatted})
               </span>
             </h3>
-            <p className="text-sm text-foreground/90 leading-relaxed font-normal bg-slate-50/60 p-5 rounded-2xl border border-slate-200/80">
+            <p className="text-[16px] text-foreground/90 leading-relaxed font-normal bg-slate-50/60 p-5 rounded-2xl border border-slate-200/80">
               {groupArticle.characteristics}
             </p>
           </div>
 
           {/* Polarity Dynamics: When Connected to Unfavorable Numbers */}
           <div className="space-y-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-amber-700 flex items-center gap-2 font-outfit">
+            <h3 className="text-[18px] font-bold uppercase tracking-wider text-amber-700 flex items-center gap-2 font-outfit">
               <ShieldAlert className="w-4 h-4 text-amber-500" />
               <span>Polarity Dynamics: When Connected to Unfavorable Numbers</span>
             </h3>
-            <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-sm text-amber-950 leading-relaxed">
+            <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-[16px] text-amber-950 leading-relaxed">
               {groupArticle.shadowPolarity}
             </div>
           </div>
 
           {/* Be Wary Of: Health & Physical Vulnerabilities */}
           <div className="space-y-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-rose-700 flex items-center gap-2 font-outfit">
+            <h3 className="text-[18px] font-bold uppercase tracking-wider text-rose-700 flex items-center gap-2 font-outfit">
               <HeartPulse className="w-4 h-4 text-rose-500" />
               <span>Be Wary Of: Health & Physical Vulnerabilities</span>
             </h3>
-            <div className="p-5 rounded-2xl bg-rose-50/70 border border-rose-200/80 text-sm text-rose-950 leading-relaxed">
+            <div className="p-5 rounded-2xl bg-rose-50/70 border border-rose-200/80 text-[16px] text-rose-950 leading-relaxed">
               <span className="font-bold text-rose-900 block mb-1">Illnesses:</span>
               <span>{groupArticle.illnessesFormatted}</span>
             </div>

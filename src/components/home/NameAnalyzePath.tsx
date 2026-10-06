@@ -144,7 +144,7 @@ export const NameAnalyzePath: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2 pt-2 text-xs text-slate-500">
               {/* <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Try sample:</span> */}
               <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
-              <span className="text-[11px] uppercase tracking-wider text-slate-800 font-semibold">Enter your information to explore your Personality, Life Influences & Relationships, and Well-Being 2  free name analyses included.</span>
+              <span className="text-[13px] uppercase tracking-wider text-slate-800 font-semibold">Enter your information to explore your Personality, Life Influences & Relationships, and Well-Being 2  free name analyses included.</span>
               {/* {presets.map((preset) => (
                 <button
                   type="button"
@@ -169,12 +169,12 @@ export const NameAnalyzePath: React.FC = () => {
 
         {/* 40% / 20% / 40% Tripartite Architecture */}
         <div className="p-6 sm:p-8 bg-[#FAFBFE]">
-          <div className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-4 flex items-center justify-between">
+          <div className="text-sm font-bold uppercase tracking-wider text-slate-600 mb-4 flex items-center justify-between">
             <span className="flex items-center gap-2 text-slate-800">
               <Compass className="w-3.5 h-3.5 text-blue-600" />
               Deterministic Tripartite Architecture
             </span>
-            <span className="text-[11px] text-purple-700 font-medium bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200/60">
+            <span className="text-[13px] text-purple-700 font-medium bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200/60">
               Empirical Harmonic Synthesis
             </span>
           </div>
@@ -183,14 +183,14 @@ export const NameAnalyzePath: React.FC = () => {
             {/* Component 1: Official First Name */}
             <div className="p-4 rounded-xl bg-white border border-slate-200/80 hover:border-blue-300 transition-all space-y-2 group shadow-2xs hover:shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                <span className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                   Official First Name
                 </span>
-                <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200/60">
+                <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200/60">
                   40% Life Impact
                 </span>
               </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-sm text-slate-600 leading-relaxed">
                 Governs conscious personality, creative initiative, personal ambition, and executive character expression.
               </p>
             </div>
@@ -198,14 +198,14 @@ export const NameAnalyzePath: React.FC = () => {
             {/* Component 2: Official Surname */}
             <div className="p-4 rounded-xl bg-white border border-slate-200/80 hover:border-indigo-300 transition-all space-y-2 group shadow-2xs hover:shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                <span className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
                   Official Surname
                 </span>
-                <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200/60">
+                <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200/60">
                   20% Life Impact
                 </span>
               </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-sm text-slate-600 leading-relaxed">
                 Governs ancestral lineage resonance, structural heritage, social gravity, and generational stability.
               </p>
             </div>
@@ -213,26 +213,26 @@ export const NameAnalyzePath: React.FC = () => {
             {/* Component 3: Full Name Synergy */}
             <div className="p-4 rounded-xl bg-white border border-slate-200/80 hover:border-purple-300 transition-all space-y-2 group shadow-2xs hover:shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900 group-hover:text-purple-600 transition-colors">
+                <span className="text-sm font-bold text-slate-900 group-hover:text-purple-600 transition-colors">
                   Full Name Synergy
                 </span>
-                <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200/60">
+                <span className="text-xs font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200/60">
                   40% Life Impact
                 </span>
               </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-sm text-slate-600 leading-relaxed">
                 Composite vibrational synthesis of Official First Name and Official Surname working in unified harmonic synergy.
               </p>
             </div>
           </div>
 
           {/* Bottom Trust Line */}
-          <div className="mt-5 pt-4 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
+          <div className="mt-5 pt-4 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600">
             {/* <div className="flex items-center gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
               <span>2 Complimentary Analyses Included · No Credit Card Required</span>
             </div> */}
-            <div className="flex items-center gap-1.5 text-purple-700 font-semibold text-[11px]">
+            <div className="flex items-center gap-1.5 text-purple-700 font-semibold text-[13px]">
               <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
               <span>100% Deterministic & Auditable</span>
             </div>

@@ -307,7 +307,7 @@ export const WhatMakesUsDifferentSection: React.FC = () => {
             WHY <span className="gradient-text-cosmic-bright">NAMENOLOGY IS DIFFERENT</span>
           </h2>
 
-          <p className="mt-4 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+          <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
             Every name has a unique numerical pattern. Namenology brings letters, numbers, and planetary influences
             together through a structured approach to explore the influences represented by your name.
           </p>
@@ -334,22 +334,21 @@ export const WhatMakesUsDifferentSection: React.FC = () => {
                   relative rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between
                   border bg-white hover:-translate-y-1.5
                   ${gridColClass}
-                  ${
-                    isHovered
-                      ? "border-purple-300 shadow-xl shadow-purple-500/10"
-                      : "border-slate-200/80 shadow-xs"
+                  ${isHovered
+                    ? "border-purple-300 shadow-xl shadow-purple-500/10"
+                    : "border-slate-200/80 shadow-xs"
                   }
                 `}
               >
                 <div>
                   {/* Top Bar with Badge */}
                   <div className="flex items-center justify-between gap-3 mb-4">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200/80 px-2.5 py-0.5 rounded">
+                    <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200/80 px-2.5 py-0.5 rounded">
                       {diff.badge}
                     </span>
-                    <span className="font-mono text-[10px] text-purple-600 font-semibold">
+                    {/* <span className="font-mono text-xs text-purple-600 font-semibold">
                       #{diff.stepNumber}
-                    </span>
+                    </span> */}
                   </div>
 
                   {/* SVG Graphic */}
@@ -358,12 +357,12 @@ export const WhatMakesUsDifferentSection: React.FC = () => {
                   </div>
 
                   {/* Title */}
-                  <h3 className="font-outfit font-bold text-base text-slate-900 text-center mt-3 mb-2 tracking-tight">
+                  <h3 className="font-outfit font-bold text-lg text-slate-900 text-center mt-3 mb-2 tracking-tight">
                     {diff.title}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-xs text-slate-600 leading-relaxed text-center font-normal">
+                  <p className="text-sm text-slate-600 leading-relaxed text-center font-normal">
                     {diff.description}
                   </p>
                 </div>
@@ -383,33 +382,22 @@ export const WhatMakesUsDifferentSection: React.FC = () => {
         </div>
 
         {/* ================================================================= */}
-        {/* BOTTOM SCIENTIFIC OATH BANNER                                     */}
+        {/* SUPPLEMENTARY ARTICLE (NO CARD FRAME / NO BORDER)                  */}
         {/* ================================================================= */}
-        <div className="mt-12 sm:mt-16 p-7 sm:p-8 rounded-2xl bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-950 text-white relative shadow-xl max-w-4xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 text-center md:text-left max-w-2xl">
-              <span className="text-[11px] font-bold text-cyan-300 tracking-widest uppercase">
-                Structured Name-Based Analysis
-              </span>
-              <h4 className="text-lg sm:text-xl font-bold font-outfit tracking-tight text-white">
-                Letters, Numbers & Planetary Influences in Harmony
-              </h4>
-              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
-                Together, these five elements create a structured name-based analysis that combines letters, numbers,
-                and planetary influences, with the{" "}
-                <strong className="text-white font-semibold">
-                  first name weighted at 40%, the surname at 20%, and the combined name at 40%
-                </strong>
-                . These five elements distinguish Namenology from many Numerology approaches used today.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-cyan-300 shadow-inner">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
+        <div className="mt-14 sm:mt-18 max-w-3xl mx-auto pt-10 sm:pt-12 border-t border-slate-200/70">
+          <article className="space-y-2.5">
+            <h4 className="font-outfit font-bold text-xl sm:text-2xl text-slate-900 tracking-tight">
+              Letters, Numbers & Planetary Influences in Harmony
+            </h4>
+            <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
+              Together, these five elements create a structured name-based analysis that combines letters, numbers,
+              and planetary influences, with the{" "}
+              <strong className="text-slate-900 font-semibold">
+                first name weighted at 40%, the surname at 20%, and the combined name at 40%
+              </strong>
+              . These five elements distinguish Namenology from many Numerology approaches used today.
+            </p>
+          </article>
         </div>
       </div>
     </section>

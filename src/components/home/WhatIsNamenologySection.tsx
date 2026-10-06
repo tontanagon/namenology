@@ -427,7 +427,7 @@ export const WhatIsNamenologySection: React.FC = () => {
             WHAT IS <span className="gradient-text-cosmic-bright">NAMENOLOGY</span>
           </h2>
 
-          <p className="mt-4 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+          <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
             Namenology is a distinctive, proprietary numerology system developed by integrating concepts from{" "}
             <strong className="text-slate-800 font-semibold">
               cosmology, astronomy, astrology, horoscopy, and numerology
@@ -459,23 +459,22 @@ export const WhatIsNamenologySection: React.FC = () => {
                   border bg-white
                   hover:-translate-y-1.5
                   ${gridColClass}
-                  ${
-                    isHovered
-                      ? "border-purple-300 shadow-xl shadow-indigo-500/10"
-                      : "border-slate-200/80 shadow-xs"
+                  ${isHovered
+                    ? "border-purple-300 shadow-xl shadow-indigo-500/10"
+                    : "border-slate-200/80 shadow-xs"
                   }
                 `}
               >
                 <div>
                   {/* Step Number Badge */}
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-[10px] font-mono font-bold text-purple-700 bg-purple-50 border border-purple-200/70 px-2 py-0.5 rounded">
+                  {/* <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs font-mono font-bold text-purple-700 bg-purple-50 border border-purple-200/70 px-2 py-0.5 rounded">
                       {item.stepNumber}
                     </span>
-                    <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                    <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
                       Foundation
                     </span>
-                  </div>
+                  </div> */}
 
                   {/* SVG Graphic */}
                   <div className="my-2 flex items-center justify-center">
@@ -483,12 +482,12 @@ export const WhatIsNamenologySection: React.FC = () => {
                   </div>
 
                   {/* Title */}
-                  <h3 className="font-outfit font-bold text-base text-slate-900 text-center mt-3 mb-2 tracking-tight group-hover:text-blue-600 transition-colors">
+                  <h3 className="font-outfit font-bold text-lg text-slate-900 text-center mt-3 mb-2 tracking-tight group-hover:text-blue-600 transition-colors">
                     {item.title}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-xs text-slate-600 leading-relaxed text-center font-normal">
+                  <p className="text-sm text-slate-600 leading-relaxed text-center font-normal">
                     {item.description}
                   </p>
                 </div>
@@ -508,15 +507,20 @@ export const WhatIsNamenologySection: React.FC = () => {
         </div>
 
         {/* ================================================================= */}
-        {/* FOOTER SUMMARY BOX                                                */}
+        {/* SUPPLEMENTARY ARTICLE (NO CARD FRAME / NO BORDER)                  */}
         {/* ================================================================= */}
-        <div className="mt-12 sm:mt-14 p-6 sm:p-7 rounded-2xl bg-[#F8FAFF] border border-indigo-100 shadow-sm text-center max-w-3xl mx-auto">
-          <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
-            Your name and surname carry a{" "}
-            <strong className="text-slate-900 font-semibold">unique numerical pattern</strong>, with each letter connected
-            to the Cosmic Code and the energies represented by the stars. Together, these numbers form a unique energy pattern that Namenology uses to explore your{" "}
-            <span className="font-semibold text-blue-600">Personality, Destiny, and Well-being</span>.
-          </p>
+        <div className="mt-14 sm:mt-18 max-w-3xl mx-auto pt-10 sm:pt-12 border-t border-slate-200/70">
+          <article className="space-y-2.5">
+            <h4 className="font-outfit font-bold text-xl sm:text-2xl text-slate-900 tracking-tight">
+              A Unique Pattern Encoded in Every Name
+            </h4>
+            <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
+              Your name and surname carry a{" "}
+              <strong className="text-slate-900 font-semibold">unique numerical pattern</strong>, with each letter connected
+              to the Cosmic Code and the energies represented by the stars. Together, these numbers form a unique energy pattern that Namenology uses to explore your{" "}
+              <span className="font-semibold text-blue-600">Personality, Destiny, and Well-being</span>.
+            </p>
+          </article>
         </div>
       </div>
     </section>

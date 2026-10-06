@@ -603,7 +603,7 @@ export default function AnalyzePage() {
                   </h3>
                 </div>
 
-                <div className="flex items-center gap-4 bg-slate-50 border border-slate-200/80 p-3.5 rounded-2xl">
+                <div className="flex items-center bg-slate-50 border border-slate-200/80 px-5 py-3 rounded-2xl">
                   <div className="text-center">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
                       Compound Sum
@@ -612,37 +612,6 @@ export default function AnalyzePage() {
                       {preview.firstName.charSum}
                     </span>
                   </div>
-                  <div className="h-8 w-px bg-slate-200" />
-                  <div className="text-center">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
-                      Root Vibration
-                    </span>
-                    <span className="text-2xl font-bold text-foreground font-outfit">
-                      {preview.firstName.rootNumber}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Phonetic character mapping pills */}
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-2">
-                  Phonetic Letter Values (Decoded Weights):
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {preview.firstName.characters.map((ch, idx) => (
-                    <div
-                      key={idx}
-                      className="flex flex-col items-center px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 min-w-[38px]"
-                    >
-                      <span className="text-xs font-bold text-foreground">
-                        {ch.character}
-                      </span>
-                      <span className="text-[10px] font-black text-brand-600 font-outfit">
-                        {ch.score}
-                      </span>
-                    </div>
-                  ))}
                 </div>
               </div>
 
@@ -662,46 +631,46 @@ export default function AnalyzePage() {
                   </Badge>
                 </div>
 
-                {preview.firstName.article.meaningsAndSymbols && (
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 text-xs text-foreground/90 space-y-1">
-                    <span className="font-bold text-foreground uppercase block text-[10px] tracking-wider">
+                {Boolean(preview.firstName.article.meaningsAndSymbols && preview.firstName.article.meaningsAndSymbols.trim()) && (
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1.5">
+                    <span className="font-bold text-foreground uppercase block text-[18px] tracking-wider">
                       Meanings & Symbols:
                     </span>
-                    <p className="leading-relaxed">
+                    <p className="text-[16px] text-foreground/90 leading-relaxed">
                       {preview.firstName.article.meaningsAndSymbols}
                     </p>
                   </div>
                 )}
 
                 {preview.firstName.article.characteristics && (
-                  <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200 text-xs text-foreground/90 space-y-1">
-                    <span className="font-bold text-foreground uppercase block text-[10px] tracking-wider">
+                  <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200 space-y-1.5">
+                    <span className="font-bold text-foreground uppercase block text-[18px] tracking-wider">
                       Characteristics of Group {preview.firstName.article.groupNumber}:
                     </span>
-                    <p className="leading-relaxed">
+                    <p className="text-[16px] text-foreground/90 leading-relaxed">
                       {preview.firstName.article.characteristics}
                     </p>
                   </div>
                 )}
 
                 {preview.firstName.article.lifeDescription && (
-                  <div className="p-4 rounded-xl bg-white border border-slate-200 text-xs text-foreground/90 space-y-1">
-                    <span className="font-bold text-foreground uppercase block text-[10px] tracking-wider flex items-center gap-1.5">
-                      <BookOpen className="w-3.5 h-3.5 text-brand-600" />
+                  <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1.5">
+                    <span className="font-bold text-foreground uppercase block text-[18px] tracking-wider flex items-center gap-1.5">
+                      <BookOpen className="w-4 h-4 text-brand-600" />
                       Life Influence & Destiny Reading:
                     </span>
-                    <p className="leading-relaxed">
+                    <p className="text-[16px] text-foreground/90 leading-relaxed">
                       {preview.firstName.article.lifeDescription}
                     </p>
                   </div>
                 )}
 
                 {preview.firstName.article.illnessesFormatted && (
-                  <div className="p-3.5 rounded-xl bg-rose-50/70 border border-rose-200/70 text-xs text-rose-950">
-                    <span className="font-bold text-rose-900 block mb-0.5">
+                  <div className="p-4 rounded-xl bg-rose-50/70 border border-rose-200/70 text-rose-950 space-y-1.5">
+                    <span className="font-bold text-rose-900 block text-[18px] uppercase tracking-wider">
                       Be Wary Of & Health Precautions:
                     </span>
-                    <p>{preview.firstName.article.illnessesFormatted}</p>
+                    <p className="text-[16px] leading-relaxed">{preview.firstName.article.illnessesFormatted}</p>
                   </div>
                 )}
               </div>
@@ -722,7 +691,7 @@ export default function AnalyzePage() {
                   </h3>
                 </div>
 
-                <div className="flex items-center gap-4 bg-slate-50 border border-slate-200/80 p-3.5 rounded-2xl">
+                <div className="flex items-center bg-slate-50 border border-slate-200/80 px-5 py-3 rounded-2xl">
                   <div className="text-center">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
                       Compound Sum
@@ -731,37 +700,6 @@ export default function AnalyzePage() {
                       {preview.surname.charSum}
                     </span>
                   </div>
-                  <div className="h-8 w-px bg-slate-200" />
-                  <div className="text-center">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
-                      Root Vibration
-                    </span>
-                    <span className="text-2xl font-bold text-foreground font-outfit">
-                      {preview.surname.rootNumber}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Phonetic character mapping pills */}
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-2">
-                  Phonetic Letter Values (Decoded Weights):
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {preview.surname.characters.map((ch, idx) => (
-                    <div
-                      key={idx}
-                      className="flex flex-col items-center px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 min-w-[38px]"
-                    >
-                      <span className="text-xs font-bold text-foreground">
-                        {ch.character}
-                      </span>
-                      <span className="text-[10px] font-black text-indigo-600 font-outfit">
-                        {ch.score}
-                      </span>
-                    </div>
-                  ))}
                 </div>
               </div>
 
@@ -781,46 +719,46 @@ export default function AnalyzePage() {
                   </Badge>
                 </div>
 
-                {preview.surname.article.meaningsAndSymbols && (
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 text-xs text-foreground/90 space-y-1">
-                    <span className="font-bold text-foreground uppercase block text-[10px] tracking-wider">
+                {Boolean(preview.surname.article.meaningsAndSymbols && preview.surname.article.meaningsAndSymbols.trim()) && (
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1.5">
+                    <span className="font-bold text-foreground uppercase block text-[18px] tracking-wider">
                       Meanings & Symbols:
                     </span>
-                    <p className="leading-relaxed">
+                    <p className="text-[16px] text-foreground/90 leading-relaxed">
                       {preview.surname.article.meaningsAndSymbols}
                     </p>
                   </div>
                 )}
 
                 {preview.surname.article.characteristics && (
-                  <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200 text-xs text-foreground/90 space-y-1">
-                    <span className="font-bold text-foreground uppercase block text-[10px] tracking-wider">
+                  <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200 space-y-1.5">
+                    <span className="font-bold text-foreground uppercase block text-[18px] tracking-wider">
                       Characteristics of Group {preview.surname.article.groupNumber}:
                     </span>
-                    <p className="leading-relaxed">
+                    <p className="text-[16px] text-foreground/90 leading-relaxed">
                       {preview.surname.article.characteristics}
                     </p>
                   </div>
                 )}
 
                 {preview.surname.article.lifeDescription && (
-                  <div className="p-4 rounded-xl bg-white border border-slate-200 text-xs text-foreground/90 space-y-1">
-                    <span className="font-bold text-foreground uppercase block text-[10px] tracking-wider flex items-center gap-1.5">
-                      <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
+                  <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1.5">
+                    <span className="font-bold text-foreground uppercase block text-[18px] tracking-wider flex items-center gap-1.5">
+                      <BookOpen className="w-4 h-4 text-indigo-600" />
                       Life Influence & Destiny Reading:
                     </span>
-                    <p className="leading-relaxed">
+                    <p className="text-[16px] text-foreground/90 leading-relaxed">
                       {preview.surname.article.lifeDescription}
                     </p>
                   </div>
                 )}
 
                 {preview.surname.article.illnessesFormatted && (
-                  <div className="p-3.5 rounded-xl bg-rose-50/70 border border-rose-200/70 text-xs text-rose-950">
-                    <span className="font-bold text-rose-900 block mb-0.5">
+                  <div className="p-4 rounded-xl bg-rose-50/70 border border-rose-200/70 text-rose-950 space-y-1.5">
+                    <span className="font-bold text-rose-900 block text-[18px] uppercase tracking-wider">
                       Be Wary Of & Health Precautions:
                     </span>
-                    <p>{preview.surname.article.illnessesFormatted}</p>
+                    <p className="text-[16px] leading-relaxed">{preview.surname.article.illnessesFormatted}</p>
                   </div>
                 )}
               </div>
@@ -850,22 +788,13 @@ export default function AnalyzePage() {
                   </div>
 
                   {/* Compound Sum for Full Name */}
-                  <div className="flex items-center gap-4 bg-slate-50 border border-slate-200/80 p-4 rounded-2xl">
+                  <div className="flex items-center bg-slate-50 border border-slate-200/80 px-6 py-4 rounded-2xl">
                     <div className="text-center">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
                         Compound Sum
                       </span>
                       <span className="text-3xl font-black text-brand-600 font-outfit">
                         {preview.fullName.totalCompoundSum}
-                      </span>
-                    </div>
-                    <div className="h-8 w-px bg-slate-200" />
-                    <div className="text-center">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
-                        Root Vibration
-                      </span>
-                      <span className="text-2xl font-bold text-foreground font-outfit">
-                        {preview.fullName.rootNumber}
                       </span>
                     </div>
                   </div>
@@ -888,14 +817,16 @@ export default function AnalyzePage() {
                 </div>
 
                 {/* Visible Teaser: Meanings & Symbols */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-brand-50/60 border border-brand-200/60 space-y-1.5">
-                  <span className="text-xs font-bold uppercase tracking-wider text-brand-700 block">
-                    Meanings & Symbols:
-                  </span>
-                  <p className="text-sm font-semibold text-brand-950 leading-relaxed">
-                    {preview.fullName.article.meaningsAndSymbols}
-                  </p>
-                </div>
+                {Boolean(preview.fullName.article.meaningsAndSymbols && preview.fullName.article.meaningsAndSymbols.trim()) && (
+                  <div className="p-4 sm:p-5 rounded-2xl bg-brand-50/60 border border-brand-200/60 space-y-1.5">
+                    <span className="text-[18px] font-bold uppercase tracking-wider text-brand-700 block">
+                      Meanings & Symbols:
+                    </span>
+                    <p className="text-[16px] font-semibold text-brand-950 leading-relaxed">
+                      {preview.fullName.article.meaningsAndSymbols}
+                    </p>
+                  </div>
+                )}
 
                 {/* Gated Deep Article Container */}
                 <div className="relative">
@@ -909,24 +840,24 @@ export default function AnalyzePage() {
                   >
                     {/* CHARACTERISTICS OF GROUP */}
                     <div className="space-y-3">
-                      <h4 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2 font-outfit">
-                        <span className="w-2 h-2 rounded-full bg-brand-500" />
+                      <h4 className="text-[18px] font-bold uppercase tracking-wider text-foreground flex items-center gap-2 font-outfit">
+                        <span className="w-2.5 h-2.5 rounded-full bg-brand-500" />
                         <span>
                           Characteristics of Group {preview.fullName.article.groupNumber} ({preview.fullName.article.numbersFormatted})
                         </span>
                       </h4>
-                      <p className="text-sm text-foreground/90 leading-relaxed font-normal bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                      <p className="text-[16px] text-foreground/90 leading-relaxed font-normal bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
                         {preview.fullName.article.characteristics}
                       </p>
                     </div>
 
                     {/* LIFE PREDICTION */}
                     <div className="space-y-3">
-                      <h4 className="text-sm font-bold uppercase tracking-wider text-brand-700 flex items-center gap-2 font-outfit">
+                      <h4 className="text-[18px] font-bold uppercase tracking-wider text-brand-700 flex items-center gap-2 font-outfit">
                         <BookOpen className="w-4 h-4 text-brand-600" />
                         <span>Life Influence & Destiny Reading:</span>
                       </h4>
-                      <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-foreground/95 leading-relaxed">
+                      <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-[16px] text-foreground/95 leading-relaxed">
                         {preview.fullName.article.lifeDescription}
                       </div>
                     </div>
@@ -934,11 +865,11 @@ export default function AnalyzePage() {
                     {/* POLARITY DYNAMICS (WHEN CONNECTED TO BAD NUMBERS) */}
                     {preview.fullName.article.shadowPolarity && (
                       <div className="space-y-3">
-                        <h4 className="text-sm font-bold uppercase tracking-wider text-amber-700 flex items-center gap-2 font-outfit">
+                        <h4 className="text-[18px] font-bold uppercase tracking-wider text-amber-700 flex items-center gap-2 font-outfit">
                           <ShieldAlert className="w-4 h-4 text-amber-500" />
                           <span>Polarity Dynamics: When Connected to Unfavorable Numbers</span>
                         </h4>
-                        <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-sm text-amber-950 leading-relaxed">
+                        <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-[16px] text-amber-950 leading-relaxed">
                           {preview.fullName.article.shadowPolarity}
                         </div>
                       </div>
@@ -947,11 +878,11 @@ export default function AnalyzePage() {
                     {/* HEALTH & PHYSICAL VULNERABILITIES */}
                     {preview.fullName.article.illnessesFormatted && (
                       <div className="space-y-3">
-                        <h4 className="text-sm font-bold uppercase tracking-wider text-rose-700 flex items-center gap-2 font-outfit">
+                        <h4 className="text-[18px] font-bold uppercase tracking-wider text-rose-700 flex items-center gap-2 font-outfit">
                           <HeartPulse className="w-4 h-4 text-rose-500" />
                           <span>Be Wary Of: Health & Physical Vulnerabilities</span>
                         </h4>
-                        <div className="p-5 rounded-2xl bg-rose-50/70 border border-rose-200/80 text-sm text-rose-950 leading-relaxed">
+                        <div className="p-5 rounded-2xl bg-rose-50/70 border border-rose-200/80 text-[16px] text-rose-950 leading-relaxed">
                           <span className="font-bold text-rose-900 block mb-1">
                             Health Vulnerabilities:
                           </span>
@@ -963,11 +894,11 @@ export default function AnalyzePage() {
                     {/* EXAMPLE NAMES */}
                     {preview.fullName.article.exampleNames && (
                       <div className="space-y-2">
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 font-outfit">
+                        <h4 className="text-[18px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 font-outfit">
                           <Award className="w-3.5 h-3.5 text-brand-500" />
                           <span>Names and Surnames Carrying the Power of this Number:</span>
                         </h4>
-                        <p className="text-xs font-medium text-slate-700 bg-slate-50 p-3.5 rounded-xl border border-slate-200/70">
+                        <p className="text-[16px] font-medium text-slate-700 bg-slate-50 p-3.5 rounded-xl border border-slate-200/70 leading-relaxed">
                           {preview.fullName.article.exampleNames}
                         </p>
                       </div>

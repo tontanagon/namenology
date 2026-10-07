@@ -526,7 +526,7 @@ function SettingsContent() {
                     Email Categories &amp; Alerts
                   </h3>
 
-                  {/* 1. News & Announcements (ข่าวสาร) */}
+                  {/* 1. News & Announcements */}
                   <div className="p-4 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-4 hover:border-blue-200 transition-colors">
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">

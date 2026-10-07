@@ -25,7 +25,7 @@ export async function GET(
     if (!user.emailVerified && user.role !== "ADMIN") {
       return NextResponse.json(
         {
-          error: "กรุณายืนยันอีเมลของคุณก่อนเข้าดูรายงานบทวิเคราะห์",
+          error: "Please verify your email address to access this analysis report.",
           code: "EMAIL_VERIFICATION_REQUIRED",
         },
         { status: 403 }

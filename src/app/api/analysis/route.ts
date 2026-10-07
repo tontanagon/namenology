@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     if (!user.emailVerified) {
       return NextResponse.json(
         {
-          error: "กรุณายืนยันอีเมลของคุณก่อนเข้าใช้งานบทวิเคราะห์ (Please verify your email address to access analysis features.)",
+          error: "Please verify your email address to access analysis features.",
           code: "EMAIL_VERIFICATION_REQUIRED",
         },
         { status: 403 }
@@ -123,7 +123,7 @@ export async function GET(req: NextRequest) {
     if (!user.emailVerified) {
       return NextResponse.json(
         {
-          error: "กรุณายืนยันอีเมลของคุณก่อนเข้าใช้งานบทวิเคราะห์",
+          error: "Please verify your email address to access analysis history.",
           code: "EMAIL_VERIFICATION_REQUIRED",
         },
         { status: 403 }

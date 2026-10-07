@@ -73,7 +73,7 @@ export default function PricingPage() {
     }
 
     if (isEmailVerified === false) {
-      setError("กรุณายืนยันอีเมลของคุณก่อนทำรายการชำระเงิน (Please verify your email before checkout)");
+      setError("Please verify your email address before purchasing a package.");
       return;
     }
 
@@ -96,7 +96,7 @@ export default function PricingPage() {
 
       if (res.status === 403 && data.code === "EMAIL_VERIFICATION_REQUIRED") {
         setIsEmailVerified(false);
-        setError(data.error || "กรุณายืนยันอีเมลของคุณก่อนทำรายการชำระเงิน");
+        setError(data.error || "Please verify your email address before initiating payment.");
         setLoadingProductId(null);
         return;
       }
@@ -150,16 +150,16 @@ export default function PricingPage() {
                 </div>
                 <div>
                   <p className="text-xs font-bold text-slate-900">
-                    ต้องยืนยันอีเมลก่อนทำรายการชำระเงิน
+                    Email Verification Required Before Payment
                   </p>
                   <p className="text-[11px] text-slate-600 mt-0.5">
-                    กรุณายืนยันอีเมล {userEmail ? `(${userEmail})` : ""} เพื่อปลดล็อกการสั่งซื้อแพ็กเกจ
+                    Please verify your email address {userEmail ? `(${userEmail})` : ""} to enable checkout.
                   </p>
                 </div>
               </div>
               <Link href={`/verify-email?email=${encodeURIComponent(userEmail)}`} className="shrink-0">
                 <Button size="sm" variant="primary" className="bg-amber-600 hover:bg-amber-700 text-white font-bold h-8 text-xs">
-                  <span>ยืนยันอีเมลทันที</span>
+                  <span>Verify Email Now</span>
                   <ArrowRight className="w-3.5 h-3.5 ml-1" />
                 </Button>
               </Link>

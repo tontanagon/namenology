@@ -107,10 +107,10 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ isCosmic = f
     const diffHour = Math.floor(diffMin / 60);
     const diffDay = Math.floor(diffHour / 24);
 
-    if (diffMin < 1) return "เมื่อสักครู่";
-    if (diffMin < 60) return `${diffMin} นาทีที่แล้ว`;
-    if (diffHour < 24) return `${diffHour} ชั่วโมงที่แล้ว`;
-    return `${diffDay} วันที่แล้ว`;
+    if (diffMin < 1) return "Just now";
+    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffHour < 24) return `${diffHour}h ago`;
+    return `${diffDay}d ago`;
   };
 
   const getNotificationIcon = (type: string) => {
@@ -169,11 +169,11 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ isCosmic = f
           >
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold font-outfit uppercase tracking-wider text-slate-800">
-                การแจ้งเตือน (Notifications)
+                Notifications
               </span>
               {unreadCount > 0 && (
                 <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-700">
-                  {unreadCount} ใหม่
+                  {unreadCount} new
                 </span>
               )}
             </div>
@@ -184,7 +184,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ isCosmic = f
                 className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer flex items-center gap-1"
               >
                 <Check className="w-3 h-3" />
-                อ่านทั้งหมด
+                Mark all as read
               </button>
             )}
           </div>
@@ -194,9 +194,9 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ isCosmic = f
             {notifications.length === 0 ? (
               <div className="py-10 text-center px-4">
                 <Bell className="w-8 h-8 text-slate-300 mx-auto mb-2 opacity-60" />
-                <p className="text-xs font-semibold text-slate-600">ไม่มีการแจ้งเตือนในขณะนี้</p>
+                <p className="text-xs font-semibold text-slate-600">No notifications at this time</p>
                 <p className="text-[11px] text-slate-400 mt-0.5">
-                  เมื่อมีรายงานวิเคราะห์ชื่อหรือข่าวสารใหม่ จะแจ้งเตือนให้คุณทราบที่นี่
+                  When new analysis reports or updates arrive, you will be notified here.
                 </p>
               </div>
             ) : (
@@ -251,7 +251,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ isCosmic = f
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 transition-colors"
             >
               <Settings className="w-3.5 h-3.5 text-slate-500" />
-              <span>ตั้งค่าการแจ้งเตือน (Notification Settings)</span>
+              <span>Notification Settings</span>
               <ChevronRight className="w-3 h-3 text-slate-400" />
             </Link>
           </div>

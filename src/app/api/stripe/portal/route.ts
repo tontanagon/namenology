@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     if (!user.emailVerified) {
       return NextResponse.json(
         {
-          error: "กรุณายืนยันอีเมลของคุณก่อนเข้าใช้งาน Customer Portal",
+          error: "Please verify your email address to access the Customer Portal.",
           code: "EMAIL_VERIFICATION_REQUIRED",
         },
         { status: 403 }

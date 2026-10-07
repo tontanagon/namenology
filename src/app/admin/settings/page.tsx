@@ -343,7 +343,7 @@ export default function AdminSettingsPage() {
           <div>
             <h2 className="text-base font-bold text-foreground flex items-center gap-2">
               <Mail className="w-4 h-4 text-brand-600" />
-              <span>Email Delivery &amp; SMTP Test System (ระบบทดสอบการส่งอีเมล)</span>
+              <span>Email Delivery &amp; SMTP Test System</span>
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
               Verify mailer configuration, test deliverability, and preview transactional email templates.
@@ -403,7 +403,7 @@ export default function AdminSettingsPage() {
                 rel="noopener noreferrer"
                 className="text-[11px] text-blue-600 hover:underline font-bold inline-flex items-center gap-1 ml-6"
               >
-                <span>Open Ethereal Email Preview (เปิดดูตัวอย่างอีเมลจริง)</span>
+                <span>Open Ethereal Email Preview</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             )}
@@ -414,7 +414,7 @@ export default function AdminSettingsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-foreground mb-1">
-                Recipient Email Address (อีเมลปลายทางที่ต้องการทดสอบ)
+                Recipient Email Address
               </label>
               <Input
                 type="email"
@@ -427,17 +427,17 @@ export default function AdminSettingsPage() {
 
             <div>
               <label className="block text-xs font-semibold text-foreground mb-1">
-                Email Template (ประเภทเทมเพลตอีเมล)
+                Email Template
               </label>
               <select
                 value={testTemplate}
                 onChange={(e) => setTestTemplate(e.target.value as any)}
                 className="w-full h-9 px-3 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-1 focus:ring-brand-500"
               >
-                <option value="TEST">1. Verification / System Test (อีเมลทดสอบระบบ)</option>
-                <option value="WELCOME">2. Welcome New Member (ต้อนรับสมาชิกใหม่)</option>
-                <option value="SECURITY">3. Security Alert (แจ้งเตือนรหัสผ่านถูกเปลี่ยน)</option>
-                <option value="ANALYSIS">4. Analysis Report Ready (รายงานวิเคราะห์ชื่อเสร็จสิ้น)</option>
+                <option value="TEST">1. Verification / System Test</option>
+                <option value="WELCOME">2. Welcome New Member</option>
+                <option value="SECURITY">3. Security Alert</option>
+                <option value="ANALYSIS">4. Analysis Report Ready</option>
               </select>
             </div>
           </div>
@@ -450,7 +450,7 @@ export default function AdminSettingsPage() {
               className="inline-flex items-center gap-1.5"
             >
               <Send className="w-3.5 h-3.5" />
-              <span>{sendingEmail ? "Dispatching Email..." : "Send Test Email (ส่งอีเมลทดสอบ)"}</span>
+              <span>{sendingEmail ? "Dispatching Email..." : "Send Test Email"}</span>
             </Button>
           </div>
         </form>

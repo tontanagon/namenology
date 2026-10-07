@@ -467,19 +467,19 @@ export default function AnalysisResultDetailPage() {
                   <AlertCircle className="w-7 h-7" />
                 </div>
                 <h2 className="text-xl font-bold text-slate-900 mb-2 font-outfit">
-                  กรุณายืนยันอีเมลของคุณ
+                  Email Verification Required
                 </h2>
                 <p className="text-sm text-slate-600 mb-6 max-w-md mx-auto">
-                  {error || "คุณต้องยืนยันอีเมลก่อนเพื่อเข้าดูรายงานบทวิเคราะห์ฉบับนี้"}
+                  {error || "Please verify your email address to access this analysis report."}
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                   <Link href="/verify-email">
                     <Button variant="primary" className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6">
-                      ยืนยันอีเมลตอนนี้ &rarr;
+                      Verify Email Now &rarr;
                     </Button>
                   </Link>
                   <Link href="/analyze">
-                    <Button variant="outline">กลับสู่หน้าวิเคราะห์</Button>
+                    <Button variant="outline">Return to Analysis Engine</Button>
                   </Link>
                 </div>
               </>

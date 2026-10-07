@@ -104,7 +104,7 @@ export default function AnalyzePage() {
     }
 
     if (isEmailVerified === false) {
-      setError("กรุณายืนยันอีเมลของคุณก่อนเข้าใช้งานบทวิเคราะห์");
+      setError("Please verify your email address to access analysis features.");
       return;
     }
 
@@ -458,16 +458,16 @@ export default function AnalyzePage() {
               </div>
               <div>
                 <p className="font-bold text-slate-900 text-sm">
-                  กรุณายืนยันอีเมลก่อนเข้าใช้งานบทวิเคราะห์
+                  Email Verification Required
                 </p>
                 <p className="text-xs text-slate-600 mt-0.5">
-                  ระบบต้องการการยืนยันอีเมล {userEmail ? `(${userEmail})` : ""} เพื่อปลดล็อกการวิเคราะห์ชื่อและการบันทึกรายงาน
+                  Please verify your email address {userEmail ? `(${userEmail})` : ""} to unlock name calculations and report archiving.
                 </p>
               </div>
             </div>
             <Link href={`/verify-email?email=${encodeURIComponent(userEmail)}`} className="shrink-0">
               <Button size="sm" variant="primary" className="bg-amber-600 hover:bg-amber-700 text-white font-bold h-9">
-                <span>ยืนยันอีเมลทันที</span>
+                <span>Verify Email Now</span>
                 <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
               </Button>
             </Link>
@@ -561,7 +561,7 @@ export default function AnalyzePage() {
                     className="w-full sm:w-auto px-8 font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-500/20"
                   >
                     <Lock className="w-4 h-4 mr-2" />
-                    <span>กรุณายืนยันอีเมลก่อนวิเคราะห์</span>
+                    <span>Please Verify Email Before Analyzing</span>
                   </Button>
                 </Link>
               ) : freeAnalysesCount >= 2 && credits.total <= 0 ? (

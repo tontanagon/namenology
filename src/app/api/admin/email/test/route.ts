@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
           user.id,
           targetEmail,
           "Valued Client",
-          "ภูมิพัฒน์ มังกรเจริญ (Demo Name)",
+          "Alexander Sterling (Demo Name)",
           96,
           `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/analysis-history`
         );

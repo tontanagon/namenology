@@ -132,8 +132,8 @@ export async function POST(req: NextRequest) {
     await prisma.notification.create({
       data: {
         userId: newUser.id,
-        title: "ยินดีต้อนรับสู่ NAMENOLOGY!",
-        message: "บัญชีของคุณพร้อมใช้งานแล้ว เริ่มต้นวิเคราะห์ศาสตร์แห่งชื่อของคุณได้ทันที พร้อมรับสิทธิ์ทดลองวิเคราะห์ฟรี",
+        title: "Welcome to NAMENOLOGY!",
+        message: "Your account is ready. Discover your name's celestial harmonics with your complimentary analysis.",
         type: "SUCCESS",
         link: "/analyze",
       },

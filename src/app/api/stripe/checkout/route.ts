@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       logger.security("STRIPE", "Checkout attempted by unverified user", { userId: user.id });
       return NextResponse.json(
         {
-          error: "กรุณายืนยันอีเมลของคุณก่อนทำรายการชำระเงิน (Please verify your email address before initiating payment.)",
+          error: "Please verify your email address before initiating payment.",
           code: "EMAIL_VERIFICATION_REQUIRED",
         },
         { status: 403 }
